@@ -21,7 +21,6 @@ There is no compilation step. Validate changes from the repository root:
 - `./scripts/stow.sh`: prepare the home-directory secrets file, link the `shell`, `git`, and `local` packages, and Stow `.agents` contents into `$HOME/.agents`.
 - `stow -n -t "$HOME" shell git && stow -n -t "$HOME/.agents" .agents && stow -n --ignore='\.example$' --ignore='^\.secrets$' -t "$HOME" local`: preview links and detect conflicts without changing files.
 - `./scripts/verify-agents.sh`: confirm the canonical agent layout and custom-skill links are valid.
-- `pre-commit run --all-files`: run the configured repository checks.
 
 ## Coding Style & Naming Conventions
 
