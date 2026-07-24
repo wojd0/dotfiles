@@ -15,7 +15,5 @@
 [rerere]
 	enabled = false
 	autoupdate = true
-[gpg]
-	program = /opt/homebrew/bin/gpg
 [include]
 	path = ~/.gitconfig.local

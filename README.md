@@ -27,10 +27,23 @@ Public-safe dotfiles managed with GNU Stow.
 ## GPG commit signing
 
 Run `./scripts/setup-gpg-signing.sh` from a terminal after installing the
-dependencies. The interactive setup creates or reuses a GPG signing key,
-configures your personal Git identity in `~/.gitconfig.local`, authenticates
-the GitHub CLI when needed, uploads the public key, and verifies the result with
-a temporary signed commit. It is safe to rerun when the key is already present.
+dependencies. The interactive menu can add or remove a GPG signing key. Adding
+a key creates or reuses local key material, configures your personal Git identity
+in `~/.gitconfig.local`, authenticates the GitHub CLI when needed, uploads the
+public key, and verifies the result with a temporary signed commit. Removing a
+key shows its user ID, fingerprint, creation date, and expiration date before
+selection, deletes it from GitHub and the local GPG keyring, and clears Git
+signing settings when that key is currently configured. Adding is safe to rerun
+when the key is already present. Enter `q` at any script prompt to quit without
+continuing the current action.
+
+Run the setup on the macOS host, not inside a dev container. It configures
+`pinentry-mac`, disables GPG agent and macOS Keychain passphrase caching, and
+offers to remove existing saved GPG passphrases so every signature requires a
+native host dialog. Git intentionally does not set an absolute `gpg.program`;
+the host and dev container each resolve their own `gpg` executable while the
+editor forwards the host agent socket. Never enter a GPG passphrase in a
+dev-container terminal—cancel the commit and check socket forwarding instead.
 
 `install.sh` installs the required tools and Zsh plugins. It preserves an existing
 Oh My Zsh installation and can be rerun safely. `stow.sh` performs all dotfile
