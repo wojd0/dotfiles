@@ -1,0 +1,12 @@
+.git
+/.agents/skills
+
+local/.zshrc.local
+local/.gitconfig.local
+local/.secrets
+
+**/.secrets
+**/.npmrc
+!local/.npmrc
+**/.DS_Store
+**/.cache

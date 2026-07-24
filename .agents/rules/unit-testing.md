@@ -1,0 +1,11 @@
+when creating unit tests:
+- dont create dumb, "should create" test cases
+- using empty lines separate test case code to make arrange act assert steps visible
+- when testing rxjs use firstValueFrom/lastValueFrom and async await instead of subscribe
+- don't use TestBed.resetTestingModule()
+- don't overuse fakeAsync, fixture.detectChanges, fixture.whenstable and other time ticking methods
+- don't use done fn
+- don't put await inside expect(), extract awaited values to variables first
+- Use a single shared setupTest function with a configuration object argument and sensible defaults, rather than duplicating test setup logic across describe blocks.
+- if in hxp-frontend-apps, use libs/shared/testing/src/util/component-harnesses for testing angular material components
+- dont use try/catch
