@@ -8,8 +8,8 @@
 Server: user-Atlassian
 Tool: getJiraIssue
 Arguments:
-  cloudId: "hyland.atlassian.net"
-  issueIdOrKey: "AAE-43172"
+  cloudId: "<connected-cloud-id>"
+  issueIdOrKey: "<JIRA_KEY>-<NUMBER>"
   responseContentFormat: "markdown"
 ```
 
@@ -21,8 +21,8 @@ The `cloudId` can be derived from the Jira URL hostname. If the call fails, use 
 Server: user-Atlassian
 Tool: searchJiraIssuesUsingJql
 Arguments:
-  cloudId: "hyland.atlassian.net"
-  jql: "key = AAE-43172"
+  cloudId: "<connected-cloud-id>"
+  jql: "key = <JIRA_KEY>-<NUMBER>"
 ```
 
 ## Nx workspace
@@ -142,25 +142,25 @@ loadData$ = this.service.getTreeDataFromFile(file).pipe(
 
 Must match regex: `^(revert-[0-9]+-)?(improvement|fix|feature|test|tmp|dependabot)/<JIRA_KEY>-<NUMBER>-<kebab-description>$`
 
-Valid Jira keys: `HXCS`, `AAE`, `HXIDP`, `RPAHXP`, `CICGOV`, `CSX`
+Use the Jira project key from the linked ticket.
 
 | Prefix | Use case | Example |
 |--------|----------|---------|
-| `feature/` | New functionality | `feature/AAE-43172-adjust-import-export-labels` |
-| `fix/` | Bug fixes | `fix/AAE-42457-incorrect-project-file-empty-models-list` |
-| `improvement/` | Refactoring, enhancements | `improvement/AAE-42386-fe-model-type-refresh-action` |
-| `test/` | Test-only changes | `test/AAE-12345-add-missing-unit-tests` |
-| `tmp/` | Temporary/experimental | `tmp/AAE-12345-spike-new-approach` |
+| `feature/` | New functionality | `feature/<JIRA_KEY>-<NUMBER>-adjust-import-export-labels` |
+| `fix/` | Bug fixes | `fix/<JIRA_KEY>-<NUMBER>-incorrect-project-file-empty-models-list` |
+| `improvement/` | Refactoring, enhancements | `improvement/<JIRA_KEY>-<NUMBER>-model-type-refresh-action` |
+| `test/` | Test-only changes | `test/<JIRA_KEY>-<NUMBER>-add-missing-unit-tests` |
+| `tmp/` | Temporary/experimental | `tmp/<JIRA_KEY>-<NUMBER>-spike-new-approach` |
 
 ## Commit message format
 
 ```
-AAE-XXXXX <concise description>
+<JIRA_KEY>-<NUMBER> <concise description>
 ```
 
 Examples from past sessions:
-- `AAE-42755 Add tsconfig validity check to precommit`
-- `AAE-43172 Adjust import/export labels`
+- `<JIRA_KEY>-<NUMBER> Add tsconfig validity check to precommit`
+- `<JIRA_KEY>-<NUMBER> Adjust import/export labels`
 
 ## PR creation
 
@@ -168,7 +168,7 @@ Examples from past sessions:
 REMOTE=$(git remote | head -1)
 git push -u "$REMOTE" HEAD
 
-gh pr create --title "AAE-XXXXX: Short description" --body "$(cat <<'EOF'
+gh pr create --title "<JIRA_KEY>-<NUMBER>: Short description" --body "$(cat <<'EOF'
 ## Summary
 - <what changed and why>
 
@@ -177,7 +177,7 @@ gh pr create --title "AAE-XXXXX: Short description" --body "$(cat <<'EOF'
 - [ ] Manual verification of <specific behavior>
 
 ## Jira
-https://hyland.atlassian.net/browse/AAE-XXXXX
+https://example.atlassian.net/browse/<JIRA_KEY>-<NUMBER>
 EOF
 )"
 ```

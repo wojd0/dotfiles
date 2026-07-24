@@ -1,11 +1,11 @@
 ---
 name: web-navigation
-description: General guidelines for agentic navigation through Hyland web applications. Use when an agent interacts with, tests, or automates any Hyland web app (HxP shell, Content Cloud, Nuxeo, Alfresco, etc.) through a browser, regardless of the browser-automation tooling in use.
+description: General guidelines for agentic navigation through complex web applications. Use when an agent interacts with, tests, or automates a web app through a browser, regardless of the browser-automation tooling in use.
 ---
 
-# Hyland Web Navigation
+# Web Application Navigation
 
-Guidelines for driving Hyland web applications through any browser-automation harness. These rules describe *what* to do; map each capability to whatever tools your harness exposes.
+Guidelines for driving complex web applications through any browser-automation harness. These rules describe *what* to do; map each capability to whatever tools your harness exposes.
 
 ## Choose the Browser Capability
 
@@ -29,9 +29,9 @@ For every interaction:
 
 Never chain actions from a stale page snapshot. Re-inspect after navigation, asynchronous updates, or any action that can replace or reorder content.
 
-## Waiting for Hyland Applications
+## Waiting for Web Applications
 
-Hyland applications may use polling, streaming requests, or WebSockets, so global network-idle is not a reliable readiness signal.
+Web applications may use polling, streaming requests, or WebSockets, so global network-idle is not a reliable readiness signal.
 
 - Prefer an explicit UI condition, such as an element appearing, a status changing, a dialog closing, or a control becoming enabled.
 - If a relevant request is identifiable, combine its completion with the expected UI condition.

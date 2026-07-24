@@ -1,6 +1,6 @@
 ---
 name: implement-jira-ticket
-description: Implements or fixes a Jira ticket end-to-end in the hxp-frontend-apps Nx monorepo. Use when: the message contains any Jira ticket ID pattern (AAE-XXXXX, HXCS-XXXXX, HXIDP-XXXXX, etc.) with or without a verb; the user provides a Jira URL (hyland.atlassian.net/browse/AAE-*); the user says "implement", "fix", "work on", "pick up", "take on", "start on", "do", or "handle" any ticket; the user pastes a ticket ID alone like "AAE-12345"; or the user asks to implement a feature or fix a bug and there's a ticket reference anywhere in the message.
+description: Implements or fixes a Jira ticket end-to-end in the hxp-frontend-apps Nx monorepo. Use when the message contains a Jira ticket ID with or without a verb; the user provides a Jira browse URL; the user says "implement", "fix", "work on", "pick up", "take on", "start on", "do", or "handle" a ticket; the user pastes a ticket ID alone; or the user asks to implement a feature or fix a bug and there is a ticket reference anywhere in the message.
 ---
 
 # Implement Jira Ticket
@@ -9,10 +9,10 @@ description: Implements or fixes a Jira ticket end-to-end in the hxp-frontend-ap
 
 ### 1. Parse the request
 
-Extract the ticket ID (e.g. `AAE-43172`) and any extra context from the user message. The user may provide:
-- A Jira URL: `https://hyland.atlassian.net/browse/AAE-XXXXX`
-- A ticket ID with instructions: `implement ticket AAE-XXXXX, <extra context>`
-- A bug fix request: `fix this bug https://hyland.atlassian.net/browse/AAE-XXXXX`
+Extract the ticket ID and any extra context from the user message. The user may provide:
+- A Jira URL: `https://example.atlassian.net/browse/<JIRA_KEY>-<NUMBER>`
+- A ticket ID with instructions: `implement ticket <JIRA_KEY>-<NUMBER>, <extra context>`
+- A bug fix request containing a Jira browse URL
 
 ### 2. Fetch ticket details
 
@@ -22,8 +22,8 @@ Use the Atlassian MCP to get ticket details:
 Tool: getJiraIssue
 Server: user-Atlassian
 Arguments:
-  cloudId: "hyland.atlassian.net"
-  issueIdOrKey: "AAE-XXXXX"
+  cloudId: "<connected-cloud-id>"
+  issueIdOrKey: "<JIRA_KEY>-<NUMBER>"
   responseContentFormat: "markdown"
 ```
 
@@ -60,7 +60,7 @@ The `push -u` immediately sets the upstream to the matching remote branch, avoid
 
 Branch name must match: `^(revert-[0-9]+-)?(improvement|fix|feature|test|tmp|dependabot)/<JIRA_KEY>-<NUMBER>-<kebab-description>$`
 
-Valid Jira keys: `HXCS`, `AAE`, `HXIDP`, `RPAHXP`, `CICGOV`, `CSX`
+Use the Jira project key from the linked ticket.
 
 Common prefixes:
 - `feature/` — new functionality
@@ -104,7 +104,7 @@ Test conventions:
 
 ### 8. Commit
 
-Commit message format: `AAE-XXXXX <concise description of the change>`
+Commit message format: `<JIRA_KEY>-<NUMBER> <concise description of the change>`
 
 Only commit when asked. Follow the standard git safety protocol.
 

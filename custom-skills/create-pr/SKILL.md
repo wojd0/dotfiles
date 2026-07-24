@@ -40,9 +40,9 @@ This unblock loop applies anywhere in the workflow below where hooks or validati
 
 2. **Ensure correct branch name**:
    - Branch names must match the regex from `.husky/pre-push`: `^(revert-[0-9]+-)?(improvement|fix|feature|test|tmp|dependabot)/<TICKET_KEY>-[0-9]+[_-][A-Za-z0-9._-]+$`
-   - Valid JIRA keys: `HXCS`, `AAE`, `HXIDP`, `RPAHXP`, `CICGOV`, `CSX`
+   - Use the Jira project key from the linked ticket
    - Choose prefix based on change type: `fix/` for bugfixes, `feature/` for new features, `improvement/` for refactors/enhancements, `test/` for test-only changes
-   - Example: `fix/AAE-43710-dropdown-widget-alignment`
+   - Example: `fix/<JIRA_KEY>-<NUMBER>-dropdown-widget-alignment`
    - If on `develop` or wrong branch name, create/rename to a valid branch before pushing
 
 3. **Rebase onto the freshest base branch** (MANDATORY before pushing):
@@ -73,9 +73,9 @@ This unblock loop applies anywhere in the workflow below where hooks or validati
    - Only use the appropriate phrase in the Testing section if the diff contains such changes. Do not run tests, do not claim they pass.
 
 7. **Determine PR metadata** from the commits and changes:
-   - **Title**: `AAE-XXXXX Description` — space separator, NO colon. Extract ticket ID(s) from branch name. Sentence case, start with an action verb (Fix, Add, Refactor, Update, Move, Remove, Replace, Migrate, Introduce, Handle, etc.). For multiple tickets: `AAE-XXXXX AAE-YYYYY Description`.
+   - **Title**: `<JIRA_KEY>-<NUMBER> Description` — space separator, NO colon. Extract ticket ID(s) from branch name. Sentence case, start with an action verb (Fix, Add, Refactor, Update, Move, Remove, Replace, Migrate, Introduce, Handle, etc.). For multiple tickets, list each ticket ID before the description.
    - **Change type**: one of Bugfix, New feature, UI/UX, Tests only, Documentation, Build, Refactoring
-   - **Additional context**: leave empty unless there is a truly important related ticket or prerequisite to reference (e.g. `AAE-42899.`)
+   - **Additional context**: leave empty unless there is a truly important related ticket or prerequisite to reference.
    - **Testing section**: always fill — see filling rules below
    - **Feature flags**: check if any feature flag usage was added or modified
    - **Visual changes**: check if `.html`, `.scss`, or template files were modified
@@ -93,8 +93,8 @@ This unblock loop applies anywhere in the workflow below where hooks or validati
    ```
 
 10. **Transition linked Jira ticket to Review**:
-   - Extract the ticket key(s) from the branch name (e.g. `AAE-12345`).
-   - For each ticket, use the Atlassian MCP tools with `cloudId: "hyland.atlassian.net"`:
+   - Extract the ticket key(s) from the branch name.
+   - For each ticket, discover the Atlassian cloud ID from the connected resources, then use it with the Atlassian MCP tools:
      1. Call `getJiraIssue` with `issueIdOrKey` and `fields: ["status"]` to get the current status.
      2. If the status name is **"In Progress"** (case-insensitive match):
         - Call `getTransitionsForJiraIssue` to list available transitions.
@@ -109,9 +109,9 @@ This unblock loop applies anywhere in the workflow below where hooks or validati
 
 | Section | Rule |
 |---------|------|
-| Title format | `AAE-XXXXX Description` — space separator, **no colon**. Sentence case. Start with action verb. Multiple tickets: `AAE-XXXXX AAE-YYYYY Description`. |
-| JIRA link | Extract from branch name. Format: `https://hyland.atlassian.net/browse/AAE-XXXXX`. Multiple tickets on separate lines. Replace the HTML comment placeholder with the actual link(s). |
-| Additional context | **Leave empty** in most cases. Only fill to reference a closely related/prerequisite ticket (e.g. `AAE-42899.`). Remove the HTML comment placeholder if leaving empty. |
+| Title format | `<JIRA_KEY>-<NUMBER> Description` — space separator, **no colon**. Sentence case. Start with an action verb. For multiple tickets, list each ticket ID before the description. |
+| JIRA link | Extract from branch name. Use the connected Jira site's browse URL. Multiple tickets go on separate lines. Replace the HTML comment placeholder with the actual link(s). |
+| Additional context | **Leave empty** in most cases. Only fill to reference a closely related or prerequisite ticket. Remove the HTML comment placeholder if leaving empty. |
 | Change type | Check exactly one based on the nature of the commits. |
 | Testing — tests added/updated | Compute against the true merge base (`$MERGE_BASE..HEAD`) after `git fetch <remote> develop`, not against a possibly-stale `<remote>/develop`. If the diff contains additions/modifications of test-related code (`it(`, `describe(`, `expect(`, `beforeEach(`, `test(`, `cy.`, etc.), replace the HTML comment placeholder with the kinds actually touched: `unit tests updated/added` (only `*.spec.ts`), `e2es updated/added` (only `*.e2e.ts`/Cypress), or `unit tests/e2es updated/added` (both). Verify each test file with `git log $MERGE_BASE..HEAD -- <file>` before claiming it. |
 | Testing — no tests added | Replace the HTML comment placeholder with a brief explanation. Examples: `style changes only`, `styling changes`, `package and style changes only`, `ci change only`, `refactor`, `repo config related change` |

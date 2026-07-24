@@ -69,9 +69,9 @@ DO NOT use large GitHub search page sizes.
 ```text
 Creative Work Outcome:
 
-AAE-12345 Fix login validation https://github.com/Org/repo/pull/123
+{ticket ID} Fix login validation https://github.com/Org/repo/pull/123
 
-AAE-12346 Add user profile page https://github.com/Org/repo/pull/124
+{ticket ID} Add user profile page https://github.com/Org/repo/pull/124
 
 Project:
 
@@ -79,7 +79,7 @@ Org/repo https://github.com/Org/repo
 
 Recording and archiving of work:
 
-AAE-12345 - Fixed validation logic that was rejecting valid email formats with special characters. https://hyland.atlassian.net/browse/AAE-12345
+{ticket ID} - Fixed validation logic that was rejecting valid email formats with special characters. {JIRA link}
 
-AAE-12346 - Implemented new user profile page with avatar upload and bio editing capabilities. https://hyland.atlassian.net/browse/AAE-12346
+{ticket ID} - Implemented new user profile page with avatar upload and bio editing capabilities. {JIRA link}
 ```
