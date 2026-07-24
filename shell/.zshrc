@@ -69,22 +69,11 @@ HYPHEN_INSENSITIVE="true"
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
-# Which plugins would you like to load?
-# Standard plugins can be found in $ZSH/plugins/
-# Custom plugins may be added to $ZSH_CUSTOM/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(
-   git
-   macos
-   npm
-   nvm
-   ng
-   gh
-   fzf-tab
-   )
-
-
+plugins=()
+while read -r plugin_name _; do
+  [[ -z "$plugin_name" || "$plugin_name" == \#* ]] && continue
+  plugins+=("$plugin_name")
+done < "$HOME/.oh-my-zsh-plugins"
 
 if [[ -r "$ZSH/oh-my-zsh.sh" ]]; then
   source "$ZSH/oh-my-zsh.sh"

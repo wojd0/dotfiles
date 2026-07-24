@@ -1,0 +1,10 @@
+# Plugin names are loaded into the Oh My Zsh `plugins` array in this order.
+# Add a Git repository URL as the second field for plugins not bundled with
+# Oh My Zsh.
+git
+macos
+npm
+nvm
+ng
+gh
+fzf-tab https://github.com/Aloxaf/fzf-tab.git
