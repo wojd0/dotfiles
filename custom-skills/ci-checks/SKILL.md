@@ -9,7 +9,7 @@ description: Investigate and diagnose failing CI checks, GitHub Actions workflow
 
 The user may provide a PR number, a GitHub PR link (e.g. `https://github.com/owner/repo/pull/16022`), a branch name, or a workflow run URL. Extract the relevant identifiers and infer the repo from the current git remote when not provided.
 
-Rename the agent session to `[pr-number or branch] [repository] failing CI` — for example `#2056 HylandSoftware/satori failing CI`.
+Rename the agent session to `[pr-number or branch] [repository] failing CI` — for example `#2056 owner/repository failing CI`.
 
 **Important:** The PR may not be for the branch you are currently on.
 
