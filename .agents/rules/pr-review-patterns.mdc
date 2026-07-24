@@ -1,0 +1,99 @@
+---
+description: Common PR review feedback patterns extracted from team code reviews - enforces team conventions and avoids recurring review comments
+alwaysApply: true
+---
+
+# PR Review Patterns
+
+**Apply these rules conservatively.** Only flag or enforce a pattern when you are 100% confident it applies to the current context. When in doubt, leave the code as-is — these are guidelines, not hard requirements. Do not refactor existing code just to match these patterns unless explicitly asked.
+
+## Angular Templates
+
+- Use `[class.some-class]="condition"` instead of `[ngClass]` (soft deprecated)
+- Use `@if` / `@for` control flow blocks instead of `*ngIf` / `*ngFor`; remove `CommonModule` when no structural directives remain
+- Add `aria-label` attributes to interactive elements for accessibility
+- Keep component templates in separate HTML files — avoid inline templates
+- Keep template bindings explicit and readable — avoid dynamically inferring attribute values that obscure intent. Example of what to avoid: `[emailTarget]="$any('candidates')"`
+- Keep UI label text concise. Example: prefer "Dark theme" over "Switch to dark theme mode"
+
+## Feature Flags
+
+- Use shared constants instead of hardcoded feature flag key strings. Example: `STUDIO_SHARED.FLAG_NAME` instead of a raw string
+- Name feature flags as nouns, not verbs. Example: `projectSubsetImportExportFlag` (good) vs `exportFeatureFlag` (bad — sounds like a verb)
+- In shared libs, use generic flag names — avoid `studio-*` prefix for flags that apply cross-app
+- When using `toSignal()` with async feature flag observables, always provide `{ initialValue: false }`
+
+## RxJS & Subscriptions
+
+- Use `takeUntilDestroyed()` for subscriptions in components/directives
+- Use `catchError` pipe operator instead of error callbacks in `.subscribe()`
+- Never nest subscribes — use higher-order mapping operators (`switchMap`, `concatMap`, etc.)
+- Don't convert a signal to an observable only to convert it back to a signal — use `computed()` instead
+- Consider the `iif` operator for conditional observable branching
+- Prefer initialization logic in `ngOnInit` over constructor when it involves subscriptions or side effects
+
+## Type Safety
+
+- Avoid `any` and `$any()` — define proper types. Example: use `HttpErrorResponse` instead of `any` for HTTP errors
+- Don't scatter `|| {}` / `|| []` fallbacks — handle null/undefined upstream or let the stream not emit
+- Avoid duplicate injection tokens — use a single well-typed token. Example: don't create separate tokens for "action" and "option" when one typed token covers both
+
+## Code Organization
+
+- Order component class members: fields → inputs → outputs → computed → constructor → lifecycle → methods
+- Extract named private methods instead of inline anonymous functions in `effect()` or `subscribe()`
+- Avoid `_` prefix on method and variable names
+- Keep methods focused — if a method does multiple things, split it up
+- Avoid `continue` in for loops — prefer filtering or restructuring the logic
+- Avoid `providedIn: 'any'` — prefer `providedIn: 'root'` or explicit module providers
+
+## Naming Conventions
+
+- NgRx effects: use `...Effect` suffix consistently. Example: `refreshFormsEffect` (good) vs `refreshForms$` (bad)
+- Avoid magic strings — extract repeated string literals into constants
+
+## Architecture & Library Boundaries
+
+- imports should respect Nx library boundaries
+- Don't import non-buildable libs inside buildable libs
+- if an import is used only as a type, import should be as ex. `import { type ... } from '...'`
+- When refactoring, consider moving new components into dedicated libraries to reduce large existing ones
+- Avoid duplicating services across libraries — create a shared lib to provide common services
+- Keep NgRx effects and actions in their related feature library — don't scatter them into unrelated modules
+- Don't duplicate files already handled by the build pipeline. Example: if Docker/webpack already copies SCSS files, don't add manual copies
+
+## Testing
+
+- Use `provideMockFeatureFlags()` with `overrideProvider` for feature flag testing
+- Use `provideMockStore` instead of manually mocking store
+- Test rendered output / component harnesses rather than internal signal values when possible
+- Don't unnecessarily spread arrays when assigning to signals
+- Use spies for better control over test behavior — avoid tests interfering with each other
+- Remove `console.log` / `console.warn` from tests — rely on assertions instead
+- `jest.clearAllMocks()` in `afterEach` is usually sufficient — don't over-setup test cleanup (no need for `TestBed.resetTestingModule()`)
+- Configure `TestBed` inside `beforeEach`, not outside it
+- Validate changes on components with custom behavior — don't assume Material defaults apply
+
+## SCSS & Theming
+
+- Prefer Material Design system tokens (`--mat-sys-*`) over custom CSS properties
+- Don't set a font variable and then immediately override its weight — pick the right token. Example: use `--mat-sys-body-small` directly instead of `--mat-sys-title-small` with an overridden `font-weight`
+- Let Material components inherit typography from theme — don't override with custom CSS unless necessary
+- Avoid overriding Material internal selectors — use supported public APIs and tokens. Examples of internal selectors to avoid: `.mat-mdc-*`, `.mdc-*`
+- Use `mat-flat-button` as the primary button variant. Example: it replaces legacy classes like `hxp-primary-button`
+- Remove legacy color/background classes instead of adapting them — go with native Material look
+- Use Satori SVG icons for design-system compliance
+- Use `surface` color tokens for backgrounds instead of hardcoded colors
+- When removing a border, remove the color, style, and width together — don't leave orphaned properties
+- Remove unused CSS classes from templates — don't leave classes that have no matching styles
+- When migrating to a new design system, clean up unused variables and classes — don't carry them forward
+
+## i18n
+
+- Only modify `en.json` — other languages are handled by a separate translation process
+- Always add translation keys when introducing user-facing strings
+
+## Package & Rebasing
+
+- Double-check `package.json` and `package-lock.json` after rebasing for unintended version downgrades or duplicate entries
+- Review diffs carefully before submitting — especially after rebasing large branches

@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "bunx -y @playwright/mcp@latest",
+      "env": {},
+      "args": []
+    },
+    "angular-cli": {
+      "command": "bunx",
+      "args": [
+        "-y",
+        "@angular/cli",
+        "mcp"
+      ]
+    },
+    "Figma": {
+      "url": "https://mcp.figma.com/mcp",
+      "headers": {}
+    },
+    "Atlassian": {
+      "url": "https://mcp.atlassian.com/v1/sse",
+      "headers": {}
+    }
+  }
+}
