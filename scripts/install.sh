@@ -13,7 +13,7 @@ if ! command -v brew >/dev/null 2>&1; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
-brew install stow bun pre-commit gh fzf
+brew install stow bun pre-commit gh fzf gnupg
 
 OH_MY_ZSH_DIR="$HOME/.oh-my-zsh"
 

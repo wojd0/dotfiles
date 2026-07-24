@@ -14,7 +14,7 @@ Public-safe dotfiles managed with GNU Stow.
 ## Bootstrap
 
 1. Clone this repo into your home directory as dotfiles.
-2. Run `./scripts/install.sh` to install Homebrew (when needed), GNU Stow, Bun, pre-commit, the GitHub CLI, `fzf`, Oh My Zsh, and the configured Oh My Zsh plugins.
+2. Run `./scripts/install.sh` to install Homebrew (when needed), GNU Stow, Bun, pre-commit, the GitHub CLI, GnuPG, `fzf`, Oh My Zsh, and the configured Oh My Zsh plugins.
 3. Run `./scripts/stow.sh`.
    - Skills from `skills-lock.json` are restored with Bun.
    - Custom skills from `custom-skills/` are linked into `.agents/skills`.
@@ -23,6 +23,14 @@ Public-safe dotfiles managed with GNU Stow.
    - Existing secrets remain in the home directory and are never managed by Stow.
    - The `local` Stow package links only public-safe machine configuration into your home directory.
 4. Fill in the secret values.
+
+## GPG commit signing
+
+Run `./scripts/setup-gpg-signing.sh` from a terminal after installing the
+dependencies. The interactive setup creates or reuses a GPG signing key,
+configures your personal Git identity in `~/.gitconfig.local`, authenticates
+the GitHub CLI when needed, uploads the public key, and verifies the result with
+a temporary signed commit. It is safe to rerun when the key is already present.
 
 `install.sh` installs the required tools and Zsh plugins. It preserves an existing
 Oh My Zsh installation and can be rerun safely. `stow.sh` performs all dotfile
