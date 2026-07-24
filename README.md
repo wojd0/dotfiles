@@ -14,15 +14,14 @@ Public-safe dotfiles managed with GNU Stow.
 ## Bootstrap
 
 1. Clone this repo into your home directory as dotfiles.
-2. Run `./scripts/install.sh` to install Homebrew (when needed), GNU Stow, Bun, pre-commit, the GitHub CLI, GnuPG, `fzf`, Oh My Zsh, and the configured Oh My Zsh plugins.
-3. Run `./scripts/stow.sh`.
+2. Run `./setup.sh` to non-interactively install Homebrew (when needed), GNU Stow, Bun, pre-commit, the GitHub CLI, GnuPG, `fzf`, Oh My Zsh, and the configured Oh My Zsh plugins, then link and configure the dotfiles.
    - Skills from `skills-lock.json` are restored with Bun.
    - Custom skills from `custom-skills/` are linked into `.agents/skills`.
    - Claude compatibility links point `~/.claude/rules` and `~/.claude/skills` to the canonical `.agents` directories.
    - This creates `~/.secrets` from the tracked example when it is missing.
    - Existing secrets remain in the home directory and are never managed by Stow.
    - The `local` Stow package links only public-safe machine configuration into your home directory.
-4. Fill in the secret values.
+3. Fill in the secret values.
 
 ## GPG commit signing
 
