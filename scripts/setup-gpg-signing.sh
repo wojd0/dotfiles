@@ -339,11 +339,12 @@ format_key_date() {
 
 choose_action() {
   say "What would you like to do?"
-  echo "  1) Add or configure a signing key"
+  echo "  1) Create or register a signing key"
   echo "  2) Remove an existing signing key"
+  echo "  3) Configure existing GPG signing for dev containers"
 
   while true; do
-    printf 'Choose an action [1-2, q to quit]: '
+    printf 'Choose an action [1-3, q to quit]: '
     IFS= read -r selection
 
     case "$selection" in
@@ -355,12 +356,16 @@ choose_action() {
         SELECTED_ACTION="remove"
         return 0
         ;;
+      3)
+        SELECTED_ACTION="configure"
+        return 0
+        ;;
       q|Q|quit|QUIT|Quit)
         echo "Exiting."
         exit 0
         ;;
       *)
-        echo "Enter 1, 2, or q to quit."
+        echo "Enter 1, 2, 3, or q to quit."
         ;;
     esac
   done
@@ -450,6 +455,80 @@ choose_key_to_remove() {
 
   while true; do
     printf 'Choose a key to remove [1-%s, q to quit]: ' "${#fingerprints[@]}"
+    IFS= read -r selection
+
+    case "$selection" in
+      q|Q|quit|QUIT|Quit)
+        echo "Exiting."
+        exit 0
+        ;;
+      ''|*[!0-9]*)
+        echo "Enter one of the listed numbers, or q to quit."
+        ;;
+      *)
+        if [ "$selection" -ge 1 ] && [ "$selection" -le "${#fingerprints[@]}" ]; then
+          SELECTED_FINGERPRINT="${fingerprints[$((selection - 1))]}"
+          return 0
+        fi
+        echo "Enter one of the listed numbers, or q to quit."
+        ;;
+    esac
+  done
+}
+
+choose_default_signing_key() {
+  fingerprints=()
+  configured_fingerprint="$(
+    git config --global --get user.signingkey 2>/dev/null || true
+  )"
+  configured_fingerprint="$(
+    printf '%s' "$configured_fingerprint" | tr '[:lower:]' '[:upper:]'
+  )"
+
+  while IFS= read -r fingerprint; do
+    if [ -n "$fingerprint" ]; then
+      fingerprints+=("$fingerprint")
+    fi
+  done < <(list_secret_key_fingerprints)
+
+  if [ "${#fingerprints[@]}" -eq 0 ]; then
+    fail "no secret GPG signing keys were found; create one with menu option 1"
+  fi
+
+  say "Available secret GPG signing keys:"
+  for index in "${!fingerprints[@]}"; do
+    fingerprint="${fingerprints[$index]}"
+    key_details="$(get_secret_key_details "$fingerprint")"
+    IFS=$'\t' read -r created_timestamp expires_timestamp key_uid <<<"$key_details"
+    created_date="$(format_key_date "$created_timestamp")"
+
+    if [ "$expires_timestamp" = "-" ]; then
+      expires_date="never"
+    else
+      expires_date="$(format_key_date "$expires_timestamp")"
+    fi
+
+    default_label=""
+    normalized_fingerprint="$(
+      printf '%s' "$fingerprint" | tr '[:lower:]' '[:upper:]'
+    )"
+    if [ "$normalized_fingerprint" = "$configured_fingerprint" ]; then
+      default_label=" (current Git default)"
+    fi
+
+    printf '  %s) %s%s\n' "$((index + 1))" "$key_uid" "$default_label"
+    printf '     Fingerprint: %s\n' "$fingerprint"
+    printf '     Created: %s; Expires: %s\n' "$created_date" "$expires_date"
+  done
+
+  if [ "${#fingerprints[@]}" -eq 1 ]; then
+    SELECTED_FINGERPRINT="${fingerprints[0]}"
+    echo "Using the only available signing key."
+    return 0
+  fi
+
+  while true; do
+    printf 'Choose the default signing key [1-%s, q to quit]: ' "${#fingerprints[@]}"
     IFS= read -r selection
 
     case "$selection" in
@@ -578,8 +657,39 @@ verify_signed_commit() {
   git -C "$verification_repo" verify-commit HEAD
 }
 
+configure_git_signing() {
+  fingerprint="$1"
+
+  mkdir -p "$(dirname "$LOCAL_GIT_CONFIG")"
+  git config --file "$LOCAL_GIT_CONFIG" user.signingkey "$fingerprint"
+  git config --file "$LOCAL_GIT_CONFIG" commit.gpgsign true
+  git config --file "$LOCAL_GIT_CONFIG" tag.gpgSign true
+  git config --file "$LOCAL_GIT_CONFIG" --unset-all gpg.program 2>/dev/null || true
+  ensure_git_config_include
+}
+
+verify_per_operation_prompts() {
+  fingerprint="$1"
+
+  TEMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/gpg-signing-setup.XXXXXX")"
+
+  say "Verifying that each signing operation requires approval."
+  if [ "$(uname -s)" = "Darwin" ]; then
+    echo "Expect two separate native macOS pinentry dialogs."
+  else
+    echo "Expect two separate pinentry prompts."
+  fi
+
+  for operation in 1 2; do
+    signed_file="$TEMP_DIR/signing-test-$operation.asc"
+    printf 'GPG signing verification %s\n' "$operation" |
+      gpg --local-user "$fingerprint" --output "$signed_file" --clearsign
+    gpg --verify "$signed_file"
+  done
+}
+
 add_signing_key() {
-  say "Add or configure a GPG signing key"
+  say "Create or register a GPG signing key"
   echo "This will create or reuse a signing key, configure Git, add the public key"
   echo "to your GitHub account, and make a local signed test commit."
 
@@ -612,14 +722,9 @@ add_signing_key() {
   fi
 
   say "Configuring Git to sign commits and tags."
-  mkdir -p "$(dirname "$LOCAL_GIT_CONFIG")"
+  configure_git_signing "$SELECTED_FINGERPRINT"
   git config --file "$LOCAL_GIT_CONFIG" user.name "$name"
   git config --file "$LOCAL_GIT_CONFIG" user.email "$email"
-  git config --file "$LOCAL_GIT_CONFIG" user.signingkey "$SELECTED_FINGERPRINT"
-  git config --file "$LOCAL_GIT_CONFIG" commit.gpgsign true
-  git config --file "$LOCAL_GIT_CONFIG" tag.gpgSign true
-  git config --file "$LOCAL_GIT_CONFIG" --unset-all gpg.program 2>/dev/null || true
-  ensure_git_config_include
 
   ensure_github_auth
   check_github_email "$email"
@@ -645,6 +750,26 @@ add_signing_key() {
   echo "GitHub keys: https://github.com/settings/keys"
   echo
   echo "New commits and annotated tags will now be signed automatically."
+}
+
+configure_existing_signing() {
+  say "Configure existing GPG signing for dev containers"
+  echo "This will harden the host GPG agent, select an existing default key,"
+  echo "configure portable Git signing settings, and test two signing operations."
+  echo "It will not create, upload, or delete any GPG key."
+
+  choose_default_signing_key
+  harden_host_gpg
+
+  say "Configuring Git to sign commits and tags."
+  configure_git_signing "$SELECTED_FINGERPRINT"
+  verify_per_operation_prompts "$SELECTED_FINGERPRINT"
+
+  say "Dev-container-compatible GPG signing is ready."
+  echo "Fingerprint: $SELECTED_FINGERPRINT"
+  echo "Git config:  $LOCAL_GIT_CONFIG"
+  echo
+  echo "Each signing operation should now require a separate host pinentry approval."
 }
 
 remove_signing_key() {
@@ -691,7 +816,6 @@ require_command git
 require_command gpg
 require_command gpg-agent
 require_command gpgconf
-require_command gh
 if [ "$(uname -s)" = "Darwin" ]; then
   require_command defaults
   require_command security
@@ -706,9 +830,14 @@ choose_action
 
 case "$SELECTED_ACTION" in
   add)
+    require_command gh
     add_signing_key
     ;;
   remove)
+    require_command gh
     remove_signing_key
+    ;;
+  configure)
+    configure_existing_signing
     ;;
 esac

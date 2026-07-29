@@ -27,15 +27,22 @@ Public-safe dotfiles managed with GNU Stow.
 ## GPG commit signing
 
 Run `./scripts/setup-gpg-signing.sh` from a terminal after installing the
-dependencies. The interactive menu can add or remove a GPG signing key. Adding
-a key creates or reuses local key material, configures your personal Git identity
-in `~/.gitconfig.local`, authenticates the GitHub CLI when needed, uploads the
-public key, and verifies the result with a temporary signed commit. Removing a
-key shows its user ID, fingerprint, creation date, and expiration date before
-selection, deletes it from GitHub and the local GPG keyring, and clears Git
-signing settings when that key is currently configured. Adding is safe to rerun
-when the key is already present. Enter `q` at any script prompt to quit without
-continuing the current action.
+dependencies. The interactive menu can create or register a signing key, remove
+one, or configure existing keys for dev-container use. Creating or registering
+a key reuses local key material when possible, configures your personal Git
+identity in `~/.gitconfig.local`, authenticates the GitHub CLI when needed,
+uploads the public key, and verifies the result with a temporary signed commit.
+Removing a key shows its user ID, fingerprint, creation date, and expiration
+date before selection, deletes it from GitHub and the local GPG keyring, and
+clears Git signing settings when that key is currently configured. Registration
+is safe to rerun when the key is already present. Enter `q` at any script prompt
+to quit without continuing the current action.
+
+The configure-only menu option applies the Satori hardening to existing keys
+without creating, uploading, or deleting key material. It prompts for the
+default key when multiple signing keys are available, enables signed commits
+and tags, and performs two signing operations to confirm that each one requires
+a separate pinentry approval.
 
 Run the setup on the host, not inside a dev container. On macOS it configures
 `pinentry-mac`, disables GPG agent and Keychain passphrase caching, and offers
