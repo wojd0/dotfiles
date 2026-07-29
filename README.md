@@ -14,7 +14,8 @@ Public-safe dotfiles managed with GNU Stow.
 ## Bootstrap
 
 1. Clone this repo into your home directory as dotfiles.
-2. Run `./setup.sh` to non-interactively install Homebrew (when needed), GNU Stow, Bun, pre-commit, the GitHub CLI, GnuPG, `fzf`, Oh My Zsh, and the configured Oh My Zsh plugins, then link and configure the dotfiles.
+2. Run `./setup.sh` to install GNU Stow, Bun, pre-commit, the GitHub CLI, GnuPG, `fzf`, Oh My Zsh, and the configured Oh My Zsh plugins, then link and configure the dotfiles.
+   - macOS and Linux both use Homebrew, which is installed when needed.
    - Skills from `skills-lock.json` are restored with Bun.
    - Custom skills from `custom-skills/` are linked into `.agents/skills`.
    - Claude compatibility links point `~/.claude/rules` and `~/.claude/skills` to the canonical `.agents` directories.
@@ -36,13 +37,12 @@ signing settings when that key is currently configured. Adding is safe to rerun
 when the key is already present. Enter `q` at any script prompt to quit without
 continuing the current action.
 
-Run the setup on the macOS host, not inside a dev container. It configures
-`pinentry-mac`, disables GPG agent and macOS Keychain passphrase caching, and
-offers to remove existing saved GPG passphrases so every signature requires a
-native host dialog. Git intentionally does not set an absolute `gpg.program`;
-the host and dev container each resolve their own `gpg` executable while the
-editor forwards the host agent socket. Never enter a GPG passphrase in a
-dev-container terminal—cancel the commit and check socket forwarding instead.
+Run the setup on the host, not inside a dev container. On macOS it configures
+`pinentry-mac`, disables GPG agent and Keychain passphrase caching, and offers
+to remove existing saved GPG passphrases. On Linux it selects an installed GUI
+or terminal pinentry program. Both platforms disable GPG agent passphrase
+caching. Git intentionally does not set an absolute `gpg.program`, so each
+environment resolves its own `gpg` executable.
 
 `install.sh` installs the required tools and Zsh plugins. It preserves an existing
 Oh My Zsh installation and can be rerun safely. `stow.sh` performs all dotfile

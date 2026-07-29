@@ -87,10 +87,31 @@ ensure_interactive_terminal() {
   fi
 }
 
-ensure_macos_host() {
-  if [ "$(uname)" != "Darwin" ]; then
-    fail "run this setup on the macOS host, not inside a dev container"
+ensure_supported_host() {
+  case "$(uname -s)" in
+    Darwin|Linux)
+      ;;
+    *)
+      fail "GPG signing setup supports macOS and Linux"
+      ;;
+  esac
+}
+
+find_pinentry_program() {
+  if [ "$(uname -s)" = "Darwin" ]; then
+    candidates=(pinentry-mac)
+  else
+    candidates=(pinentry-gnome3 pinentry-qt pinentry-curses pinentry-tty pinentry)
   fi
+
+  for candidate in "${candidates[@]}"; do
+    if command -v "$candidate" >/dev/null 2>&1; then
+      command -v "$candidate"
+      return 0
+    fi
+  done
+
+  fail "pinentry is required; run $REPO_DIR/scripts/install.sh first"
 }
 
 rewrite_gpg_config() {
@@ -191,7 +212,7 @@ delete_keychain_passphrases() {
 }
 
 harden_host_gpg() {
-  pinentry_program="$(command -v pinentry-mac)"
+  pinentry_program="$(find_pinentry_program)"
   gnupg_dir="$HOME/.gnupg"
   agent_config="$gnupg_dir/gpg-agent.conf"
   gpg_config="$gnupg_dir/gpg.conf"
@@ -204,13 +225,15 @@ harden_host_gpg() {
   rewrite_gpg_config "$agent_config" "agent" "$pinentry_program"
   rewrite_gpg_config "$gpg_config" "gpg"
 
-  defaults write org.gpgtools.pinentry-mac UseKeychain -bool NO
-  defaults write org.gpgtools.pinentry-mac DisableKeychain -bool YES
-  delete_keychain_passphrases
+  if [ "$(uname -s)" = "Darwin" ]; then
+    defaults write org.gpgtools.pinentry-mac UseKeychain -bool NO
+    defaults write org.gpgtools.pinentry-mac DisableKeychain -bool YES
+    delete_keychain_passphrases
+  fi
 
   gpg-agent --gpgconf-test
   gpgconf --kill gpg-agent
-  echo "Configured GUI pinentry with no agent or Keychain passphrase caching."
+  echo "Configured $pinentry_program with no GPG agent passphrase caching."
 }
 
 ensure_git_config_include() {
@@ -663,15 +686,16 @@ remove_signing_key() {
 }
 
 ensure_interactive_terminal
-ensure_macos_host
+ensure_supported_host
 require_command git
 require_command gpg
 require_command gpg-agent
 require_command gpgconf
 require_command gh
-require_command pinentry-mac
-require_command defaults
-require_command security
+if [ "$(uname -s)" = "Darwin" ]; then
+  require_command defaults
+  require_command security
+fi
 
 export GPG_TTY
 GPG_TTY="$(tty)"
