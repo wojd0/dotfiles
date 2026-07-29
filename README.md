@@ -72,7 +72,9 @@ from the image build context.
 - Older installations where `~/.secrets` links to `local/.secrets` are migrated to a regular home-directory file.
 - The file is prefilled with the required secret variable names and empty values for you to fill in.
 - `~/.secrets` is sourced automatically by `.zshrc`, exposing the values as environment variables in every shell.
-- `GITHUB_USERNAME` supplies both the GitHub Packages username and Git `user.name`; `GITHUB_EMAIL` supplies Git `user.email`.
+- `GITHUB_USERNAME` supplies both the GitHub Packages username and Git
+  `user.name`; `GITHUB_EMAIL` supplies Git `user.email`. Starting Zsh writes
+  non-empty values to `~/.gitconfig.local`.
 - The real `~/.secrets` file stays outside the repository; only `local/.secrets.example` is tracked.
 - The tracked `local/.npmrc` reads registry tokens from those environment variables.
 

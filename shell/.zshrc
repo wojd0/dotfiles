@@ -242,11 +242,14 @@ if [ -f "$HOME/.secrets" ]; then
 fi
 
 export GHCR_USERNAME="$GITHUB_USERNAME"
-export GIT_CONFIG_COUNT=2
-export GIT_CONFIG_KEY_0="user.name"
-export GIT_CONFIG_VALUE_0="$GITHUB_USERNAME"
-export GIT_CONFIG_KEY_1="user.email"
-export GIT_CONFIG_VALUE_1="$GITHUB_EMAIL"
+
+if [[ -n "$GITHUB_USERNAME" ]]; then
+  git config --file "$HOME/.gitconfig.local" user.name "$GITHUB_USERNAME"
+fi
+
+if [[ -n "$GITHUB_EMAIL" ]]; then
+  git config --file "$HOME/.gitconfig.local" user.email "$GITHUB_EMAIL"
+fi
 
 if [ -f "$HOME/.zshrc.local" ]; then
   source "$HOME/.zshrc.local"
