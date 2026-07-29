@@ -76,10 +76,10 @@ for skill_dir in custom-skills/*; do
   fi
 done
 
-stow -t "$HOME" shell
-stow -t "$HOME" git
+stow --adopt --override='.*' -t "$HOME" shell
+stow --adopt --override='.*' -t "$HOME" git
 mkdir -p "$HOME/.agents"
-stow -t "$HOME/.agents" .agents
+stow --adopt --override='.*' -t "$HOME/.agents" .agents
 
 link_agent_compatibility_directory() {
   directory_name="$1"
@@ -150,4 +150,4 @@ if [ ! -f "local/.gitconfig.local" ]; then
   echo "created local/.gitconfig.local (set your GPG signing key)"
 fi
 
-stow --ignore='\.example$' --ignore='^\.secrets$' -t "$HOME" local
+stow --adopt --override='.*' --ignore='\.example$' --ignore='^\.secrets$' -t "$HOME" local
