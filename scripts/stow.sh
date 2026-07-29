@@ -12,6 +12,7 @@ require_command() {
 }
 
 require_command bun
+require_command git
 require_command stow
 
 if [ ! -f "skills-lock.json" ]; then
@@ -76,10 +77,10 @@ for skill_dir in custom-skills/*; do
   fi
 done
 
-stow --adopt --override='.*' -t "$HOME" shell
-stow --adopt --override='.*' -t "$HOME" git
+stow --adopt -t "$HOME" shell
+stow --adopt -t "$HOME" git
 mkdir -p "$HOME/.agents"
-stow --adopt --override='.*' -t "$HOME/.agents" .agents
+stow --adopt -t "$HOME/.agents" .agents
 
 link_agent_compatibility_directory() {
   directory_name="$1"
@@ -150,4 +151,5 @@ if [ ! -f "local/.gitconfig.local" ]; then
   echo "created local/.gitconfig.local (set your GPG signing key)"
 fi
 
-stow --adopt --override='.*' --ignore='\.example$' --ignore='^\.secrets$' -t "$HOME" local
+stow --adopt --ignore='\.example$' --ignore='^\.secrets$' -t "$HOME" local
+git restore .

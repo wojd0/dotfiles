@@ -45,9 +45,10 @@ caching. Git intentionally does not set an absolute `gpg.program`, so each
 environment resolves its own `gpg` executable.
 
 `install.sh` installs the required tools and Zsh plugins. It preserves an existing
-Oh My Zsh installation and can be rerun safely. `stow.sh` performs all dotfile
-and skill setup. Existing files and links at paths managed by a Stow package
-are adopted and replaced with managed links.
+Oh My Zsh installation and can be rerun safely. 
+
+`stow.sh` performs all dotfile
+and skill setup.
 
 Oh My Zsh plugins are declared in `shell/.oh-my-zsh-plugins`. Each line contains
 a plugin name and, for plugins not bundled with Oh My Zsh, its Git repository
