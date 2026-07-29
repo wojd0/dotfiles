@@ -4,7 +4,7 @@
 
 This repository manages public-safe dotfiles with GNU Stow. Each top-level package mirrors paths under `$HOME`:
 
-- `shell/`: Zsh startup files (`.zshrc`, `.zprofile`, `.zshenv`).
+- `shell/`: Zsh startup files (`.zshrc`, `.zshenv`).
 - `git/`: global Git configuration, ignore rules, and commit template.
 - `.agents/`: canonical portable rules, generated skills, and MCP configuration.
 - `custom-skills/`: tracked custom skill sources linked into `.agents/skills`.
