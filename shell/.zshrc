@@ -1,5 +1,5 @@
 export RBENV_ROOT=$HOME/.rbenv
-export PATH=$RBENV_ROOT/shims:/versions:$PATH
+export PATH="$RBENV_ROOT/shims:$PATH"
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
@@ -203,7 +203,7 @@ ZSH_THEME_GIT_PROMPT_DIRTY=" %F{reset_color}✗"
 ZSH_THEME_GIT_PROMPT_CLEAN=" %F{reset_color}✔"
  
 # pnpm
-export PNPM_HOME="$HOME/Library/pnpm"
+export PNPM_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
@@ -215,13 +215,15 @@ if [[ -t 1 ]]; then
   export GPG_TTY="$(tty)"
 fi
 
-export PATH=$PATH:$HOME/.spicetify
 export PATH="$HOME/.local/bin:$PATH"
 
+if [[ -d "$HOME/.spicetify" ]]; then
+  export PATH="$PATH:$HOME/.spicetify"
+fi
 
-### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
-export PATH="$HOME/.rd/bin:$PATH"
-### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
+if [[ -d "$HOME/.rd/bin" ]]; then
+  export PATH="$HOME/.rd/bin:$PATH"
+fi
 
 # mtr
 alias mtr='sudo mtr'
