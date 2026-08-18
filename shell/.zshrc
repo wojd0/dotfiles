@@ -203,10 +203,10 @@ ZSH_THEME_GIT_PROMPT_DIRTY=" %F{reset_color}✗"
 ZSH_THEME_GIT_PROMPT_CLEAN=" %F{reset_color}✔"
  
 # pnpm
-export PNPM_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/pnpm"
+export PNPM_HOME="/Users/wojciech.duda/.local/share/pnpm"
 case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
+  *":$PNPM_HOME/bin:"*) ;;
+  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
 esac
 # pnpm end
 
