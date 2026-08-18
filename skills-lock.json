@@ -5,19 +5,19 @@
       "source": "angular/angular",
       "sourceType": "github",
       "skillPath": "skills/dev-skills/angular-developer/SKILL.md",
-      "computedHash": "258cc410839924d8c2b31afe9dd7349a1c03b9215ddba7942a87ce976c894adb"
+      "computedHash": "6e210de5ff3122ed27bd17def7afcfa9ce64fd7530c136e929d2f3c8d544d957"
     },
     "grill-me": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/productivity/grill-me/SKILL.md",
-      "computedHash": "f361db4e15e6bfd562a9282b1dccda513910a50061f9e838ce017be9c69dde3f"
+      "computedHash": "9cdbb4b8f7a3aeaef82e6230c9e823500d4a8a1214c726cf342cf9829d34fc7d"
     },
     "grilling": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/productivity/grilling/SKILL.md",
-      "computedHash": "368d3dd7251247c69f3656d93dc83c8f1577792eacac2111f1e7981db2ece49b"
+      "computedHash": "a16b2f661db6caf310d7e02dd0d069e597cb888873e210e66f641eae715c5f23"
     },
     "link-workspace-packages": {
       "source": "nrwl/nx-ai-agents-config",
