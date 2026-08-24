@@ -1,130 +1,83 @@
 ---
-name: implement-jira-ticket
-description: Implements or fixes a Jira ticket end-to-end in the hxp-frontend-apps Nx monorepo. Use when the message contains a Jira ticket ID with or without a verb; the user provides a Jira browse URL; the user says "implement", "fix", "work on", "pick up", "take on", "start on", "do", or "handle" a ticket; the user pastes a ticket ID alone; or the user asks to implement a feature or fix a bug and there is a ticket reference anywhere in the message.
+name: plan-jira-ticket
+description: Plans the implementation of a Jira ticket.
 ---
 
-# Implement Jira Ticket
+# Plan a Jira Ticket 
+This skills allows you to plan the implementation of a Jira ticket following a multi-phase workflow.
 
-## Workflow
+## Prerequisites
 
-### 1. Parse the request
+STOP keyword in this skills is a mark for the human entry, you need to stop, provide instructed information to the user and wait for their input.
+
+Prerequisites checklist:
+- Check if user provided ticket ID, Jira link or a specific request. If not - STOP and ask the user to provide that.
+- Check if you have access to the Atlassian MCP by running any simple tool provided by it
+- Check if you have access to the GitHub origin the repository you're working on by fetching
+- Verify that the current git branch is clean. If not - STOP and ask the user to clean the branch or give guidelines on how to proceed.
+- If on repository's main merging branch (develop, main, etc.) - update with fetch and git pull --rebase
+
+When reaching next phase send a message to the user with the following content:
+<phase_name> phase started
+
+Example:
+Phase 1: Identifying the ticket phase started
+
+Do not edit any files or code, do not create any new git entities. Your work should leave no trace if you were to be restarted.
+
+## Phase 1: Identifying the ticket
+
+**SWITCH TO AGENT/EDIT MODE** (you have to switch to agent/edit mode - STOP and ask the user to switch to agent/edit mode if declined or automatic switch fails)
 
 Extract the ticket ID and any extra context from the user message. The user may provide:
+
 - A Jira URL: `https://example.atlassian.net/browse/<JIRA_KEY>-<NUMBER>`
 - A ticket ID with instructions: `implement ticket <JIRA_KEY>-<NUMBER>, <extra context>`
 - A bug fix request containing a Jira browse URL
 
-### 2. Fetch ticket details
+If the provided context is not enough, STOP and ask the user for additional information.
 
-Use the Atlassian MCP to get ticket details:
+## Phase 2: Fetching ticket details
 
-```
-Tool: getJiraIssue
-Server: user-Atlassian
-Arguments:
-  cloudId: "<connected-cloud-id>"
-  issueIdOrKey: "<JIRA_KEY>-<NUMBER>"
-  responseContentFormat: "markdown"
-```
+Phase 2 is best executed in ONE sub-agent using a lighter model. If available, use pre-configured agent type designed for this purpose.
 
-If MCP is unavailable, ask the user to paste the ticket description.
+### Fetch ticket and related sources details
 
-### 3. Summarize and confirm scope
+Fetch tickets summary, description, comments and other ticket metadata.
 
-Present a concise summary of:
-- What needs to be done
-- Acceptance criteria
-- Any feature flag requirements (user may specify one, or the ticket may mention one)
+### Fetch related ticket details
 
-Ask the user to confirm or adjust before proceeding.
+Collect additional information from:
+- user-provided ticket
+- parent ticket
+- child tickets
+Fetch information from all sources indicated in a given's ticket description or linked sources list. Fetch full content of those sources and summarize them.
 
-### 4. Create a plan
+## Phase 3: Researching the codebase
 
-Switch to Plan mode and create a structured plan with:
-- Specific files to modify/create
-- Implementation steps as a checklist
-- Test strategy
+Phase 3 is best executed in ONE OR MORE sub-agent(s) using a lighter model. If available, use pre-configured agent type designed for this purpose.
 
-### 5. Create a branch (if not already on one)
+Research the codebase to understand the current state and the changes needed.
+- identify affected files
+- check related and impacted files
+- verify usages of the files in tests, showcases, demos etc.
 
-Always branch from the latest `develop`. First discover the remote name (it may be `origin`, `o`, etc.):
+## Phase 4: Confirming alignement with user's request
 
-```bash
-REMOTE=$(git remote | head -1)
-git fetch "$REMOTE" develop
-git checkout -b <branch-name> "$REMOTE/develop"
-git push -u "$REMOTE" HEAD
-```
+Purpose of this phase is for the user to be able to "read your mind" and check if you're understanding their request correctly BEFORE you start drafting implementation plan, so do not provide any implementation details. Provide a structured message with four following sections:
+- summary of context you've gathered (number of pages, tickets and other sources checked)
+- current state - how does the affected functionality work now?
+- the problem, missing feature or bug you're going to work on
+- result - how the behavior or technical solution will change
 
-The `push -u` immediately sets the upstream to the matching remote branch, avoiding the mismatch where the branch tracks `develop` instead of the feature branch.
+On user's feedback, adjust the plan accordingly.
 
-Branch name must match: `^(revert-[0-9]+-)?(improvement|fix|feature|test|tmp|dependabot)/<JIRA_KEY>-<NUMBER>-<kebab-description>$`
+## Phase 5: Drafting the implementation plan
 
-Use the Jira project key from the linked ticket.
+**SWITCH TO PLAN MODE** (you have to switch to plan mode - STOP and ask the user to switch to plan mode if declined or automatic switch fails)
 
-Common prefixes:
-- `feature/` — new functionality
-- `fix/` — bug fixes
-- `improvement/` — refactoring, enhancements to existing features
-- `test/` — test-only changes
+Create a structured plan with the implementation plan. You should follow general best practices for implementation plans you have already setup. Try to omit information already provided in previous phases.
 
-### 6. Implement
+Add this paragraph at the end of the plan (do not read this file yourself, implementing agent has to do it):
+Once starting the implementation, agent MUST follow the guidelines provided in the `./references/implementation.md` file.
 
-Follow the plan step by step. Key conventions for this codebase:
-
-- **Localization**: Only modify `en.json` files. Never touch other language files.
-- **Angular components**: Remove `standalone: true` if present (it's now the default).
-- **Feature flags**: When required, gate changes behind the specified flag. Use `FeatureFlagService` and the feature flag enum. Test both flag-on and flag-off states.
-- **RxJS**: Prefer `catchError` over subscribe error handlers. Use `firstValueFrom`/`lastValueFrom` with async/await in tests.
-- **Error handling**: Services throw errors; components handle UI feedback (dialogs, snackbars, notifications).
-
-Use the Nx MCP to discover project structure and targets when needed:
-- `nx_workspace` — overview of all projects
-- `nx_project_details` — specific project config and available targets
-
-### 7. Run tests
-
-After implementation, run the affected project's unit tests:
-
-```bash
-npx nx test <project-name>
-```
-
-Use the Nx MCP `nx_project_details` tool to find the correct project name and test target if unsure.
-
-Test conventions:
-- No `should create` boilerplate tests
-- Separate arrange/act/assert with empty lines
-- Use `firstValueFrom`/`lastValueFrom` with async/await (not subscribe, not done callback)
-- No `TestBed.resetTestingModule()`
-- Minimize `fakeAsync`, `fixture.detectChanges`, `fixture.whenStable`
-- Single shared `setupTest()` function with config object and defaults
-- Use component harnesses from `libs/shared/testing/src/util/component-harnesses` for Angular Material
-- For feature flags: use `provideMockFeatureFlags` with `BehaviorSubject` to toggle flag states
-
-### 8. Commit
-
-Commit message format: `<JIRA_KEY>-<NUMBER> <concise description of the change>`
-
-Only commit when asked. Follow the standard git safety protocol.
-
-### 9. Create PR
-
-When asked, create a PR using `gh pr create`. Include:
-- Summary of changes (1-3 bullets)
-- Test plan / checklist
-- Link to the Jira ticket
-
-## Iterative refinement
-`
-The user will likely request adjustments after the initial implementation. Common follow-ups:
-- Additional files/locations that need the same change
-- Feature flag gating that wasn't initially requested
-- PR review comments to apply
-- CI failure analysis and fixes
-
-For each round of feedback, update the plan, implement, and re-run tests.
-
-## Detailed reference
-
-For detailed codebase patterns and examples, see [reference.md](reference.md).
