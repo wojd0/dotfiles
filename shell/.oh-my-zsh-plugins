@@ -7,4 +7,5 @@ npm
 nvm
 ng
 gh
+nx-completion https://github.com/jscutlery/nx-completion.git
 fzf-tab https://github.com/Aloxaf/fzf-tab.git

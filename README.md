@@ -14,7 +14,7 @@ Public-safe dotfiles managed with GNU Stow.
 ## Bootstrap
 
 1. Clone this repo into your home directory as dotfiles.
-2. Run `./setup.sh` to install GNU Stow, Bun, pre-commit, the GitHub CLI, GnuPG, `fzf`, Oh My Zsh, and the configured Oh My Zsh plugins, then link and configure the dotfiles.
+2. Run `./setup.sh` to install GNU Stow, Bun, pre-commit, the GitHub CLI, GnuPG, `fzf`, `jq`, Oh My Zsh, and the configured Oh My Zsh plugins, then link and configure the dotfiles.
    - macOS and Linux both use Homebrew, which is installed when needed.
    - Skills from `skills-lock.json` are restored with Bun.
    - Custom skills from `custom-skills/` are linked into `.agents/skills`.
@@ -67,8 +67,8 @@ plugin installer can also be run independently after changing the manifest.
 
 With Docker running, execute `./scripts/docker-test.sh` to build a clean Linux
 fresh-machine image and run the complete Stow setup plus its validation checks.
-The image provisions Zsh, Oh My Zsh (including `fzf-tab`), Bun, Node/npm,
-Python, rbenv, fzf, and the GitHub CLI. Use
+The image provisions Zsh, Oh My Zsh with the configured plugins, Bun, Node/npm,
+Python, rbenv, fzf, jq, and the GitHub CLI. Use
 `./scripts/docker-test.sh shell` to run the setup and then open an interactive
 Zsh shell in that container. Populated local configuration files are excluded
 from the image build context.

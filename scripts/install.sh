@@ -30,7 +30,7 @@ if ! command -v brew >/dev/null 2>&1; then
   exit 1
 fi
 
-dependencies=(stow bun pre-commit gh fzf gnupg zsh)
+dependencies=(stow bun pre-commit gh fzf gnupg jq zsh)
 if [ "$OS_NAME" = "Darwin" ]; then
   dependencies+=(pinentry-mac)
 else
