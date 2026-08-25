@@ -115,25 +115,17 @@ link_agent_compatibility_directory "rules"
 link_agent_compatibility_directory "skills"
 
 prepare_secrets_file() {
-  template="$1"
-  legacy_file="$2"
-  target="$3"
+  local template="local/.secrets.example"
+  local legacy_file="local/.secrets"
+  local target="$HOME/.secrets"
 
-  if [ -L "$target" ]; then
-    if [ ! -e "$legacy_file" ] || [ ! "$target" -ef "$legacy_file" ]; then
-      echo "error: $target points somewhere other than $legacy_file" >&2
-      exit 1
-    fi
-
-    mv "$legacy_file" "$target"
-    echo "migrated $target to a regular home-directory file"
-  elif [ -e "$target" ] && [ -e "$legacy_file" ]; then
-    echo "error: both $target and $legacy_file exist" >&2
-    echo "merge them manually, remove $legacy_file, then rerun" >&2
-    exit 1
-  elif [ -e "$target" ]; then
+  # Secrets are user-owned; this preservation check must not apply to other dotfiles.
+  if [ -e "$target" ] || [ -L "$target" ]; then
     echo "skip $target"
-  elif [ -e "$legacy_file" ]; then
+    return
+  fi
+
+  if [ -e "$legacy_file" ]; then
     mv "$legacy_file" "$target"
     echo "migrated $legacy_file to $target"
   else
@@ -144,7 +136,7 @@ prepare_secrets_file() {
   chmod 600 "$target"
 }
 
-prepare_secrets_file "local/.secrets.example" "local/.secrets" "$HOME/.secrets"
+prepare_secrets_file
 
 if [ ! -f "local/.gitconfig.local" ]; then
   cp "local/.gitconfig.local.example" "local/.gitconfig.local"
