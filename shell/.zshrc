@@ -256,5 +256,11 @@ if [ -f "$HOME/.zshrc.local" ]; then
 fi
 
 ### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
-export PATH="/Users/wojciech.duda/.rd/bin:$PATH"
+export PATH="/Users/wduda-air/.rd/bin:$PATH"
 ### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/wduda-air/.lmstudio/bin"
+# End of LM Studio CLI section
+
+. "$HOME/.cargo/env"
