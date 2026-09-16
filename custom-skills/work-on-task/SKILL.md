@@ -1,10 +1,10 @@
 ---
-name: plan-jira-ticket
-description: Plans the implementation of a Jira ticket.
+name: work-on-task
+description: Plans and executes implementation of a task.
 ---
 
 # Plan a Jira Ticket 
-This skills allows you to plan the implementation of a Jira ticket following a multi-phase workflow.
+This skills allows you to plan the implementation of a task following a multi-phase workflow.
 
 ## Prerequisites
 
@@ -70,7 +70,7 @@ Purpose of this phase is for the user to be able to "read your mind" and check i
 - the problem, missing feature or bug you're going to work on
 - result - how the behavior or technical solution will change
 
-On user's feedback, adjust the plan accordingly.
+STOP, ask user for feedback, once you get it adjust the plan accordingly. Advance to the next phase only after user's approval.
 
 ## Phase 5: Drafting the implementation plan
 
@@ -78,6 +78,6 @@ On user's feedback, adjust the plan accordingly.
 
 Create a structured plan with the implementation plan. You should follow general best practices for implementation plans you have already setup. Try to omit information already provided in previous phases.
 
-Add this paragraph at the end of the plan (do not read this file yourself, implementing agent has to do it):
+This paragraph MUST be added as-is at the end of the plan (do not read this file yourself, implementing agent has to do it):
 Once starting the implementation, agent MUST follow the guidelines provided in the `./references/implementation.md` file.
 
