@@ -1,0 +1,22 @@
+---
+description: Follows the active repository's commit-message format for commit-creating and history-rewriting Git actions
+alwaysApply: true
+---
+
+# Commit Message Format
+
+For any action that creates or rewrites commit messages, including commit,
+amend, merge, revert, cherry-pick, squash, and rebase, first run this in the
+target repository:
+
+```bash
+git log -15 --format=%s
+```
+
+Match the new subject to the dominant pattern in that output, including
+prefixes, scopes, ticket IDs, capitalization, and punctuation. Prefer recent
+entries when patterns conflict and use formats supported by the repository
+history.
+
+When the history has no established pattern, use a concise one-line imperative
+subject.
