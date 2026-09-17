@@ -1,13 +1,8 @@
-Once all changes are committed STOP and ask the user if they want to create a PR. Give them 3 options:
-- "Push and create a PR"
-- "Push and create a draft PR"
-- "Push only"
+Once all changes are committed push the changes to the remote.
 
 Read other skills and instruction for creating a PR, but DO NOT follow any other rules contradicting with the following guidelines.
 
-Steps to create a PR:
-
-## PR preparation
+## PR metadata preparation
 
 ### PR metadata pattern
 
@@ -27,4 +22,17 @@ MUST follow pattern you can discover by analyzing last 15 PR titles in the repos
 
 Should contain ONLY a link to most related Jira ticket, ex. `https://atlassian.atlassian.net/browse/ABC-123`.
 
-Create the PR.
+### Result
+DO NOT create a PR! Instead - return a GitHub compare page URL for the user.
+
+Append following query params to the URL:
+- `expand=1` - as is
+- `body=<description>` - PR description (as instructed)
+- `title=<title>` - PR title (as instructed)
+
+Examples:
+
+- comparing to default branch:
+https://github.com/user/repo/compare/feat/my-feat-branch?expand=1&body=https://atlassian.atlassian.net/browse/ABC-123&title=ABC-123:&20Add%20new%20feature
+- comparing to a specific branch:
+https://github.com/user/repo/compare/fix/my-fix-branch...my-other-branch?expand=1&body=https://atlassian.atlassian.net/browse/ABC-456&title=ABC-456:%20Fix%20bug
