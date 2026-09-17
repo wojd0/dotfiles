@@ -20,6 +20,24 @@ if [ ! -f "skills-lock.json" ]; then
   exit 1
 fi
 
+ensure_stow_sources_safe() {
+  local untracked_files
+
+  if ! git diff --quiet -- shell git .agents local; then
+    echo "error: stow source packages have unstaged changes; stage, stash, or commit them first" >&2
+    exit 1
+  fi
+
+  untracked_files="$(git ls-files --others --exclude-standard -- shell git .agents local)"
+  if [ -n "$untracked_files" ]; then
+    echo "error: stow source packages have untracked files; add, stash, or remove them first" >&2
+    printf '%s\n' "$untracked_files" >&2
+    exit 1
+  fi
+}
+
+ensure_stow_sources_safe
+
 remove_custom_skill_links() {
   skill_dir="$1"
   skill_name="${skill_dir##*/}"
@@ -144,4 +162,4 @@ if [ ! -f "local/.gitconfig.local" ]; then
 fi
 
 stow --adopt --ignore='\.example$' --ignore='^\.secrets$' -t "$HOME" local
-git restore .
+git restore --worktree -- shell git .agents local
