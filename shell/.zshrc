@@ -264,3 +264,6 @@ export PATH="$PATH:/Users/wduda-air/.lmstudio/bin"
 # End of LM Studio CLI section
 
 . "$HOME/.cargo/env"
+
+# Load Angular CLI autocompletion.
+source <(ng completion script)
