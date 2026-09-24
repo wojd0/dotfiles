@@ -1,7 +1,7 @@
 ---
 name: polish-tax-credit
 description: Generate Polish Tax Credit Request document (Ulga IP Box). Use when creating monthly tax document, listing merged PRs for tax purposes, creative work documentation, IP Box form, or tax benefits summary.
-argument-hint: Provide start and end dates for the period (format: DD-MM-YYYY or YYYY-MM-DD)
+argument-hint: No dates needed; uses the first day of the current month through today
 ---
 
 # Polish Tax Credit
@@ -14,10 +14,10 @@ Use GitHub tools for user identification and PR search, Atlassian/Jira tools for
 
 ## Workflow
 
-1. Ask for date range: If not yet provided, start by asking the user for the start and end dates of the period (format: DD-MM-YYYY or YYYY-MM-DD).
+1. Set date range: Always use the first day of the current month as the start date and today as the end date, inclusive. Do not ask the user for dates.
 2. Get GitHub username: Use the get_me tool to identify the current user.
-3. Search merged PRs: Query for all PRs merged by the user in the specified date range.
-4. Generate document: Format the results into the three required sections.
+3. Search merged PRs: Query for all PRs merged by the user in the month-to-date range.
+4. Generate document: Format the results as three separately copyable form-field blocks.
 
 ## GitHub API Strategy
 
@@ -39,27 +39,43 @@ Extract the ticket ID from each PR title, branch name, or linked issue text when
 
 ## Output Format
 
-Generate plain text, not markdown, suitable for form fields that accept links. Use this exact structure:
+Return exactly three separately copyable writing blocks, one for each form field. Put each field title immediately above its writing block, outside the block. The block content must not repeat the title.
+
+Use these titles and block contents in this order:
 
 ```text
-Creative Work Outcome:
+Creative Work Outcome
 
+:::writing{variant="standard" id="<unique five-digit id>"}
 {ticket ID} {PR title} {PR link}
+:::
 
-Project:
+Project
 
+:::writing{variant="standard" id="<unique five-digit id>"}
 {Repository owner/name} {Repository URL}
+:::
 
-Recording and archiving of work:
+Recording and archiving of work
 
+:::writing{variant="standard" id="<unique five-digit id>"}
 {ticket ID} - {1-2 sentence summary of what was done} {JIRA link}
+:::
+
+People
+
+:::writing{variant="standard" id="<unique five-digit id>"}
+{Repository owner} {Owner people URL}
+:::
 ```
 
-For multiple PRs or tickets, place a blank line between entries.
+Keep the content inside every writing block as plain text suitable for direct pasting into a form field. For multiple PRs or tickets, place a blank line between entries inside the relevant block.
 
 ## Constraints
 
-DO NOT use markdown formatting in the generated tax document: no bullets, no bold, no headers.
+Use plain text inside writing blocks: no bullets, bold text, or headings.
+Keep all three field titles outside their writing blocks.
+Use one writing block per field; never combine the three fields into a single block.
 DO NOT include PRs outside the specified date range.
 DO NOT skip any merged PRs.
 DO NOT use large GitHub search page sizes.
@@ -67,19 +83,32 @@ DO NOT use large GitHub search page sizes.
 ## Example Output
 
 ```text
-Creative Work Outcome:
+Creative Work Outcome
 
+:::writing{variant="standard" id="12345"}
 {ticket ID} Fix login validation https://github.com/Org/repo/pull/123
 
 {ticket ID} Add user profile page https://github.com/Org/repo/pull/124
+:::
 
-Project:
+Project
 
+:::writing{variant="standard" id="23456"}
 Org/repo https://github.com/Org/repo
+:::
 
-Recording and archiving of work:
+Recording and archiving of work
 
+:::writing{variant="standard" id="34567"}
 {ticket ID} - Fixed validation logic that was rejecting valid email formats with special characters. {JIRA link}
 
 {ticket ID} - Implemented new user profile page with avatar upload and bio editing capabilities. {JIRA link}
+:::
+
+People
+
+:::writing{variant="standard" id="8910"}
+Org https://github.com/orgs/Org/people
+:::
+
 ```
