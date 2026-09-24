@@ -51,7 +51,9 @@ Collect additional information from:
 - user-provided ticket
 - parent ticket
 - child tickets
-Fetch information from all sources indicated in a given's ticket description or linked sources list. Fetch full content of those sources and summarize them.
+Fetch information from all sources indicated in a given's ticket description or linked sources list.
+Inspect ALL linked confluence pages, ALL linked PRs and ANY other accessible references mentioned in description or otherwise linked to those tickets.
+Fetch full content of those sources and summarize them.
 
 ## Phase 3: Researching the codebase
 
