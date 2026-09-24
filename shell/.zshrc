@@ -11,7 +11,6 @@ export ZSH="$HOME/.oh-my-zsh"
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="robbyrussell"
-autoload -Uz compinit && compinit
 
 
 # Set list of themes to pick from when loading at random
@@ -75,6 +74,14 @@ while read -r plugin_name _; do
   plugins+=("$plugin_name")
 done < "$HOME/.oh-my-zsh-plugins"
 
+export NVM_DIR="$HOME/.nvm"
+zstyle ':omz:plugins:nvm' lazy yes
+if [[ -r "$NVM_DIR/alias/default" ]]; then
+  nvm_default_bin="$NVM_DIR/versions/node/v${$(<"$NVM_DIR/alias/default")#v}/bin"
+  [[ -d "$nvm_default_bin" ]] && export PATH="$nvm_default_bin:$PATH"
+  unset nvm_default_bin
+fi
+
 if [[ -r "$ZSH/oh-my-zsh.sh" ]]; then
   source "$ZSH/oh-my-zsh.sh"
 fi
@@ -124,9 +131,13 @@ _git_patch_substring_branch_completion() {
   }
 }
 
-autoload -Uz _git
-_git 2>/dev/null
-_git_patch_substring_branch_completion
+git_completion_file=(${^fpath}/_git(N[1]))
+if [[ -n $git_completion_file ]] && read -r git_completion_header < $git_completion_file && [[ $git_completion_header == '#compdef git gitk' ]]; then
+  autoload -Uz _git
+  _git 2>/dev/null
+  _git_patch_substring_branch_completion
+fi
+unset git_completion_file git_completion_header
 
 # User configuration
 
@@ -154,10 +165,6 @@ _git_patch_substring_branch_completion
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
 alias bn=pnpm
 
 # often aliases
@@ -175,13 +182,8 @@ if [[ -f ".nvmrc" ]] && command -v nvm >/dev/null 2>&1; then
 fi
 
 # packs n' tokens
-if command -v python3 >/dev/null 2>&1; then
-  export PATH="$PATH:$(python3 -m site --user-base)/bin"
-fi
+path+=($HOME/Library/Python/*/bin(N))
 
-if command -v npm >/dev/null 2>&1; then
-  export PATH="$PATH:$(npm config get prefix)/bin"
-fi
 
 
 
@@ -243,12 +245,14 @@ fi
 
 export GHCR_USERNAME="$GITHUB_USERNAME"
 
-if [[ -n "$GITHUB_USERNAME" ]]; then
-  git config --file "$HOME/.gitconfig.local" user.name "$GITHUB_USERNAME"
-fi
+if [[ ! -e "$HOME/.gitconfig.local" || "$HOME/.secrets" -nt "$HOME/.gitconfig.local" ]]; then
+  if [[ -n "$GITHUB_USERNAME" ]]; then
+    git config --file "$HOME/.gitconfig.local" user.name "$GITHUB_USERNAME"
+  fi
 
-if [[ -n "$GITHUB_EMAIL" ]]; then
-  git config --file "$HOME/.gitconfig.local" user.email "$GITHUB_EMAIL"
+  if [[ -n "$GITHUB_EMAIL" ]]; then
+    git config --file "$HOME/.gitconfig.local" user.email "$GITHUB_EMAIL"
+  fi
 fi
 
 if [ -f "$HOME/.zshrc.local" ]; then
@@ -268,4 +272,11 @@ if [ -f "$HOME/.cargo/env" ]; then
 fi
 
 # Load Angular CLI autocompletion.
-source <(ng completion script)
+if (( $+commands[ng] )); then
+  ng_completion_cache="$ZSH_CACHE_DIR/ng-completion.zsh"
+  if [[ ! -s "$ng_completion_cache" || "$commands[ng]" -nt "$ng_completion_cache" ]]; then
+    ng completion script >| "$ng_completion_cache"
+  fi
+  source "$ng_completion_cache"
+  unset ng_completion_cache
+fi
