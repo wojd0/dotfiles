@@ -11,6 +11,7 @@ local/.secrets
 /.agents/skills/monitor-ci/
 /.agents/skills/nx-run-tasks/
 /.agents/skills/nx-workspace/
+/.agents/skills/synced/
 /.agents/skills/.cursor-managed-skills-manifest.json
 
 **/.secrets
