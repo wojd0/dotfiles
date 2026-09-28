@@ -6,9 +6,10 @@ Public-safe dotfiles managed with GNU Stow.
 
 - shell: zsh and shell startup files
 - git: git configuration
-- `.agents`: canonical rules, MCP configuration, and generated lock-managed skills
+- `.agents`: canonical rules, shared skill references, MCP configuration, and generated lock-managed skills
 - `custom-skills`: tracked custom skill sources linked into `.agents/skills`
 - local: tracked machine configuration plus a template for gitignored secrets
+- cron: crontab entries and the jobs they run
 - scripts: helper scripts
 
 ## Bootstrap
@@ -22,6 +23,8 @@ Public-safe dotfiles managed with GNU Stow.
    - This creates `~/.secrets` from the tracked example when it is missing.
    - Existing secrets remain in the home directory and are never managed by Stow.
    - The `local` Stow package links only public-safe machine configuration into your home directory.
+   - `~/d/.tmp-codebases` is created for temporary clones and worktrees.
+   - The cron jobs from `cron/crontab` are installed into your user crontab.
 3. Fill in the secret values.
 
 ## GPG commit signing
@@ -62,6 +65,23 @@ a plugin name and, for plugins not bundled with Oh My Zsh, its Git repository
 URL. `scripts/oh-my-zsh.sh` validates the list and clones external entries,
 while `.zshrc` generates its `plugins` array from the same ordered list. The
 plugin installer can also be run independently after changing the manifest.
+
+## Cron jobs
+
+`scripts/cron.sh` writes the entries from `cron/crontab` into your user crontab
+between `# BEGIN dotfiles cron` and `# END dotfiles cron`. Each run replaces
+that block and keeps every other entry, so rerun it after editing
+`cron/crontab`. The block sets `DOTFILES_DIR` to this repository and
+`DOTFILES_LOG_DIR` to `~/.local/state/dotfiles`, where jobs append their output
+to `cron.log`. On macOS, the first install can ask to let your terminal
+administer the computer.
+
+`cron/clean-tmp-codebases.sh` runs at 10:00 and 16:00. It removes each clone
+or worktree in `~/d/.tmp-codebases` whose top directory was last modified over
+3 days ago, then the parent directories that removal leaves empty. Worktrees
+go through `git worktree remove --force`, which also unregisters them from
+their main repository; a locked worktree stays until it is unlocked. Run
+`touch <path>` to keep a codebase for another 3 days.
 
 ## Docker test environment
 

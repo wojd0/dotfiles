@@ -1,0 +1,4 @@
+# scripts/cron.sh installs these entries in a managed block that sets DOTFILES_DIR and DOTFILES_LOG_DIR.
+
+# Remove temporary clones and worktrees older than 3 days.
+0 10,16 * * * "$DOTFILES_DIR/cron/clean-tmp-codebases.sh" >>"$DOTFILES_LOG_DIR/cron.log" 2>&1

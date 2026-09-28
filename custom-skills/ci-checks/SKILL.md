@@ -16,23 +16,20 @@ Rename the agent session to `[pr-number or branch] [repository] failing CI` — 
 1. **Fetch CI status** – Use `gh pr view <number> --repo <owner/repo>` and `gh pr checks <number> --repo <owner/repo>` to list failing checks. For branch/run investigations use `gh run list --branch <branch> --limit 5`.
 2. **Get run details** – For each failing check, always fetch the latest attempt number first with `gh run view <run-id> --json attemptNumber --jq '.attemptNumber'`, then pass it explicitly: `gh run view <run-id> --attempt <N> --log-failed`. Fall back to `gh api` to fetch annotations/logs when log download fails. Never inspect attempt 1 if a newer attempt exists.
 3. **Get PR changes** – Run `gh pr diff <number> --repo <owner/repo>` and `gh pr view <number> --json files` to see which files were modified. Skip this step for non-PR runs.
-4. **Analyze each failure** – For each failing check:
-
-- Identify the failing test/job and error message
-- Check if the failure is related to PR changes (modified files) or unrelated (flaky, external service, cascading)
-- For e2e failures: locate the test file, understand the assertion/behavior, and correlate with PR changes
-- For label/other checks: explain the cause and required action
-- When reading local files to inspect test or source code, first verify the local workspace is safe and current:
-
-1. Run `git branch --show-current` and confirm it matches the PR branch. If it doesn't, warn the user and read files via `gh pr diff` or the GitHub API instead of local disk.
-2. Run `git status --short` and confirm the working tree is clean. If changes exist, warn the user that local files may not reflect the PR and prefer remote sources.
-3. Run `git fetch origin` then `git rev-list --count HEAD..origin/<pr-branch>` to check if the local branch is behind the remote.
-4. Run `git rev-list --count origin/develop...HEAD` (or `origin/main`) to estimate how far behind the base branch the PR is. If >200 commits, note this as a potential integration risk.
-5. **Summarize** – Always end with the structured summary below.
+4. **Pin a checkout** – When the analysis needs local test or source files, pin a checkout following `~/.agents/references/temporary-codebases.md`:
+   - For a PR, use the commit `headRefOid` and the refs `<baseRefName>` and `pull/<number>/head` from `gh pr view <number> --repo <owner/repo> --json headRefOid,baseRefName`, and the name `ci/<owner>/<repo>/PR-<number>`. Then `git rev-list --count HEAD..<remote>/<baseRefName>` in the checkout shows how far the PR is behind its base; over 200 commits is a potential integration risk.
+   - For a run without a PR, use the commit `headSha` and the ref `headBranch` from `gh run view <run-id> --json headSha,headBranch`, and the name `ci/<owner>/<repo>/run-<run-id>`.
+5. **Analyze each failure** – For each failing check:
+   - Identify the failing test/job and error message
+   - Check if the failure is related to PR changes (modified files) or unrelated (flaky, external service, cascading)
+   - For e2e failures: locate the test file, understand the assertion/behavior, and correlate with PR changes
+   - For label/other checks: explain the cause and required action
+   - Read test and source files from the checkout pinned in step 4
+6. **Summarize** – Always end with the structured summary below.
 
 ## Fixing failures
 
-When the user asks to fix a failing check, only apply the code changes locally. Do **not** commit or push — let the user decide when to commit.
+When the user asks to fix a failing check, only apply the code changes locally, in a checkout pinned as in step 4, and give its path when it is a temporary codebase. Do **not** commit or push — let the user decide when to commit.
 
 ## Notes
 

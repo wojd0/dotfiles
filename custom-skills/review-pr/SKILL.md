@@ -12,14 +12,13 @@ Review a pull request with the `code-review` skill, then turn its findings into 
 
 The user gives a pull request link or branch. Read it with `gh pr view <link-or-branch> --json url,baseRefName,headRefOid`; the URL gives `<owner>/<repo>` and `<number>`. When a sandboxed `gh` call fails with `Forbidden` or an invalid token, rerun it outside the sandbox, where `gh` can read its keyring.
 
-When possible, work in a local clone of that repository: the workspace, when one of its remotes points there. 
-If you can't find a clone or worktree checked out to PR's branch (synced to the remote version), create a worktree named `review/<org>/<repo>/PR-number` (if already taken, use it) for the pull request's branch. 
+Pin a checkout following `~/.agents/references/temporary-codebases.md`, with the commit `<headRefOid>`, the refs `<baseRefName>` and `pull/<number>/head`, and the name `review/<owner>/<repo>/PR-<number>`.
 
-Done when `<remote>/<baseRefName>` and `<headRefOid>` both resolve locally.
+Done when `<remote>/<baseRefName>` and `<headRefOid>` both resolve in the checkout.
 
 ## Step 2: Running the code-review skill
 
-Follow the `code-review` at `~/.agents/skills/code-review/SKILL.md` skill through its final report, passing it the pull request link or branch the user gave.
+Follow the `code-review` at `~/.agents/skills/code-review/SKILL.md` skill through its final report, passing it the pull request link or branch the user gave. Run it, and its sub-agents, in the checkout from Step 1.
 
 Done when both axes have reported, or the Spec axis reports that no spec is available.
 

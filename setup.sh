@@ -2,6 +2,7 @@
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
+TMP_CODEBASES_DIR="$HOME/d/.tmp-codebases"
 
 export NONINTERACTIVE=1
 
@@ -14,5 +15,7 @@ done
 
 "$REPO_DIR/scripts/install.sh"
 "$REPO_DIR/scripts/stow.sh"
+mkdir -p "$TMP_CODEBASES_DIR"
+"$REPO_DIR/scripts/cron.sh"
 
 echo "Setup complete. Start a new shell or run: exec zsh"
