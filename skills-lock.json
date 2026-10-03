@@ -5,7 +5,7 @@
       "source": "angular/angular",
       "sourceType": "github",
       "skillPath": "skills/dev-skills/angular-developer/SKILL.md",
-      "computedHash": "0850aa966b6a7da1151daa9d0ef2081bf397f052573a35c1643fb92b948f0f00"
+      "computedHash": "a473e70568cb0a5318b8e4a5d39352de8c6cb141278959ed77d4e2f3c55d2541"
     },
     "code-review": {
       "source": "mattpocock/skills",
@@ -23,19 +23,13 @@
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
-      "computedHash": "2449db6ab1ded9581f69fcc56c1f64818112d05e271fd4c5da23c6523f9d3d9d"
+      "computedHash": "ac2c94885f34ff8492dc12aa4543182f661f32ea1722b8d6b6c2c7045af33ae3"
     },
     "monitor-ci": {
       "source": "nrwl/nx-ai-agents-config",
       "sourceType": "github",
       "skillPath": "skills/monitor-ci/SKILL.md",
       "computedHash": "edb5f75c3bab6377cdc8d82003ed01d82d58b5401ce9c8052109d83e6fb8f0ee"
-    },
-    "resolving-merge-conflicts": {
-      "source": "mattpocock/skills",
-      "sourceType": "github",
-      "skillPath": "skills/engineering/resolving-merge-conflicts/SKILL.md",
-      "computedHash": "63b2dcadbe9124caeb3448f1378286fe18dcefb2494f60e136831b8b4986ca27"
     },
     "to-spec": {
       "source": "mattpocock/skills",
