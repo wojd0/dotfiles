@@ -223,6 +223,7 @@ if [[ -d "$HOME/.spicetify" ]]; then
   export PATH="$PATH:$HOME/.spicetify"
 fi
 
+# Rancher Desktop uses manual PATH configuration.
 if [[ -d "$HOME/.rd/bin" ]]; then
   export PATH="$HOME/.rd/bin:$PATH"
 fi
@@ -258,10 +259,6 @@ fi
 if [ -f "$HOME/.zshrc.local" ]; then
   source "$HOME/.zshrc.local"
 fi
-
-### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
-export PATH="/Users/wduda-air/.rd/bin:$PATH"
-### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
 
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/wduda-air/.lmstudio/bin"
