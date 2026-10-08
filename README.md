@@ -93,6 +93,25 @@ Python, rbenv, fzf, jq, and the GitHub CLI. Use
 Zsh shell in that container. Populated local configuration files are excluded
 from the image build context.
 
+## Claude Code cloud environment
+
+A cloud session does not read the local `~/.claude` directory. Put these lines
+in the setup script field of the cloud environment:
+
+```bash
+#!/bin/bash
+set -euo pipefail
+git clone --depth 1 https://github.com/wojd0/dotfiles.git "$HOME/dotfiles"
+"$HOME/dotfiles/scripts/cloud-setup.sh"
+```
+
+`scripts/cloud-setup.sh` restores the skills from `skills-lock.json`, links
+`~/.agents` to the `.agents` directory of the clone, and creates the Claude
+compatibility links in `~/.claude`. It does not install Homebrew, Stow the
+`shell`, `git`, or `local` packages, or install the cron jobs. The environment
+keeps the result of the setup script, so a later push to this repository
+arrives only when the environment runs the script again.
+
 ## Secrets
 
 - Running `./scripts/stow.sh` creates `~/.secrets` from `local/.secrets.example` only when it is missing.
