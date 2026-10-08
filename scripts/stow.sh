@@ -100,13 +100,14 @@ stow --adopt -t "$HOME" git
 mkdir -p "$HOME/.agents"
 stow --adopt -t "$HOME/.agents" .agents
 
-link_agent_compatibility_directory() {
-  directory_name="$1"
-  source_path="$HOME/.agents/$directory_name"
-  link_path="$HOME/.claude/$directory_name"
+link_agent_compatibility_path() {
+  source_name="$1"
+  link_name="$2"
+  source_path="$HOME/.agents/$source_name"
+  link_path="$HOME/.claude/$link_name"
 
-  if [ ! -d "$source_path" ]; then
-    echo "error: canonical agent directory $source_path is missing" >&2
+  if [ ! -e "$source_path" ]; then
+    echo "error: canonical agent path $source_path is missing" >&2
     exit 1
   fi
 
@@ -126,11 +127,12 @@ link_agent_compatibility_directory() {
     exit 1
   fi
 
-  ln -s "../.agents/$directory_name" "$link_path"
+  ln -s "../.agents/$source_name" "$link_path"
 }
 
-link_agent_compatibility_directory "rules"
-link_agent_compatibility_directory "skills"
+link_agent_compatibility_path "rules" "rules"
+link_agent_compatibility_path "skills" "skills"
+link_agent_compatibility_path "AGENTS.md" "CLAUDE.md"
 
 prepare_secrets_file() {
   local template="local/.secrets.example"

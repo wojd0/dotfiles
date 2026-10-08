@@ -51,4 +51,4 @@ Analyze GitHub workflow definitions, look for CI checks pipeline and determine w
 
 ## Phase 9: Contribute
 
-ONLY once all checks and verifications are done - read and follow the instructions in [contribution.md](contribution.md).
+ONLY once all checks and verifications are done - read and follow the instructions in [contribution.md](contribution.md) to commit the changes and return a PR proposal.
