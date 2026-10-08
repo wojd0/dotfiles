@@ -10,7 +10,7 @@ This repository manages public-safe dotfiles with GNU Stow. Each top-level packa
 - `custom-skills/`: tracked custom skill sources linked into `.agents/skills`.
 - `local/`: tracked, public-safe machine configuration plus gitignored secrets; only secrets use a tracked `.example` template.
 - `cron/`: crontab entries and the jobs they run; `scripts/cron.sh` installs them into the user crontab. Jobs run with cron's `PATH=/usr/bin:/bin`, so `env bash` resolves to Bash 3.2 on macOS.
-- `scripts/`: bootstrap, Stow, cron, and agent-verification utilities.
+- `scripts/`: bootstrap, Stow, cron, cloud-environment, and agent-verification utilities.
 - `docs/`: verification, dependency, and release checklists.
 
 Keep new configuration in the appropriate Stow package and preserve its intended home-directory path.
