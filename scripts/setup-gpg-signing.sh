@@ -606,7 +606,7 @@ github_key_database_id() {
   key_id="${fingerprint: -16}"
 
   gh api --paginate user/gpg_keys \
-    --jq '.[] | [.id, .key_id] | @tsv' 2>/dev/null |
+    --jq '.[] | [.id, .key_id] | @tsv' |
     awk -v expected="$key_id" '
       toupper($2) == toupper(expected) {
         print $1
@@ -620,6 +620,10 @@ ensure_github_auth() {
   if ! gh auth status --hostname github.com >/dev/null 2>&1; then
     echo "GitHub CLI authentication is required. Follow the prompts in your browser."
     gh auth login --hostname github.com --web
+  fi
+  if ! gh auth status --hostname github.com 2>&1 | grep -q 'admin:gpg_key'; then
+    echo "GitHub CLI needs the admin:gpg_key scope. Follow the prompts in your browser."
+    gh auth refresh --hostname github.com --scopes admin:gpg_key
   fi
 }
 
