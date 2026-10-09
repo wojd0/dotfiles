@@ -5,13 +5,13 @@
       "source": "angular/angular",
       "sourceType": "github",
       "skillPath": "skills/dev-skills/angular-developer/SKILL.md",
-      "computedHash": "a473e70568cb0a5318b8e4a5d39352de8c6cb141278959ed77d4e2f3c55d2541"
+      "computedHash": "4b23f026727c3e7aad1b553eac3769a39fb2cb3d2e04a450712455ce67653cef"
     },
     "code-review": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/engineering/code-review/SKILL.md",
-      "computedHash": "caa9a086baaf9e0f7cd71f64edfa83da6821c05e826b083221f3d02e3d6a1905"
+      "computedHash": "57cfd4ceb011f05e58a1a4f4cad3b2e03419d371f8990f4bcb32ff0d435a039f"
     },
     "grill-me": {
       "source": "mattpocock/skills",
