@@ -1,10 +1,15 @@
 ---
 name: work-on-task
-description: Plans and executes implementation of a task.
+description: Plans and executes implementation of a task only when the user explicitly requests the work-on-task skill. General task, implementation, or Jira requests do not activate it.
+disable-model-invocation: true
 ---
 
 # Plan a Jira Ticket 
 This skills allows you to plan the implementation of a task following a multi-phase workflow.
+
+## Invocation
+
+Use this workflow only when the user explicitly invokes `work-on-task` (for example, `$work-on-task`, `/work-on-task`, or "use the work-on-task skill"). A mention while discussing or editing the skill is not an invocation. For other requests, use the agent's normal workflow; agents and other skills must not select this workflow automatically.
 
 ## Conventions
 
