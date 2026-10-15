@@ -164,4 +164,4 @@ if [ ! -f "local/.gitconfig.local" ]; then
 fi
 
 stow --adopt --ignore='\.example$' --ignore='^\.secrets$' -t "$HOME" local
-git restore --worktree -- shell git .agents local
+git restore --worktree -- shell git .agents local skills-lock.json
