@@ -201,8 +201,8 @@ alias buni="START=\$(date +%s.%N) && bun install; sleep 1; rm -f bun.lock && END
 
 ZSH_THEME_GIT_PROMPT_PREFIX="@ %F{magenta}"
 ZSH_THEME_GIT_PROMPT_SUFFIX=" "
-ZSH_THEME_GIT_PROMPT_DIRTY=" %F{reset_color}✗"
-ZSH_THEME_GIT_PROMPT_CLEAN=" %F{reset_color}✔"
+ZSH_THEME_GIT_PROMPT_DIRTY=" %F{red}✗%f"
+ZSH_THEME_GIT_PROMPT_CLEAN=" %F{green}✓%f"
  
 # pnpm
 export PNPM_HOME="/Users/wojciech.duda/.local/share/pnpm"
@@ -277,3 +277,16 @@ if (( $+commands[ng] )); then
   source "$ng_completion_cache"
   unset ng_completion_cache
 fi
+
+prompt_git_line() {
+  local branch
+  branch=$(git_current_branch) || return
+  [[ -z $branch ]] && return
+  local msg
+  msg=$(command git log -1 --pretty=%s 2>/dev/null)
+  print -n "⎇  %F{magenta}${branch}%f"
+  [[ -n $msg ]] && print -n " %F{yellow}${msg//\%/%%}%f"
+  print -n "$(parse_git_dirty)"
+}
+
+PROMPT=$'@ %F{cyan}%~%f $(prompt_git_line)\n%(?:%F{green}%1{➜%}%f :%F{red}%1{➜%}%f )'
