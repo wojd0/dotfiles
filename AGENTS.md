@@ -6,12 +6,11 @@ This repository manages public-safe dotfiles with GNU Stow. Each top-level packa
 
 - `shell/`: Zsh startup files (`.zshrc`, `.zshenv`).
 - `git/`: global Git configuration, ignore rules, and commit template.
-- `.agents/`: canonical portable rules, generated skills, shared skill references, and MCP configuration. Put a procedure that several skills need in `.agents/references/` and point each skill at its `~/.agents/references/` path.
+- `.agents/`: canonical portable instructions (`AGENTS.md`), rules, generated skills, shared skill references, and MCP configuration. Put a procedure that several skills need in `.agents/references/` and point each skill at its `~/.agents/references/` path.
 - `custom-skills/`: tracked custom skill sources linked into `.agents/skills`.
 - `local/`: tracked, public-safe machine configuration plus gitignored secrets; only secrets use a tracked `.example` template.
 - `cron/`: crontab entries and the jobs they run; `scripts/cron.sh` installs them into the user crontab. Jobs run with cron's `PATH=/usr/bin:/bin`, so `env bash` resolves to Bash 3.2 on macOS.
-- `scripts/`: bootstrap, Stow, cron, cloud-environment, and agent-verification utilities.
-- `docs/`: verification, dependency, and release checklists.
+- `scripts/`: install, Stow, cron, GPG signing, cloud-environment, Docker test, and agent-verification utilities. `setup.sh` at the root runs install, Stow, and cron setup.
 
 Keep new configuration in the appropriate Stow package and preserve its intended home-directory path.
 
@@ -22,6 +21,7 @@ There is no compilation step. Validate changes from the repository root:
 - `./scripts/stow.sh`: prepare the home-directory secrets file, link the `shell`, `git`, and `local` packages, and Stow `.agents` contents into `$HOME/.agents`.
 - `stow -n -t "$HOME" shell git && stow -n -t "$HOME/.agents" .agents && stow -n --ignore='\.example$' --ignore='^\.secrets$' -t "$HOME" local`: preview links and detect conflicts without changing files.
 - `./scripts/verify-agents.sh`: confirm the canonical agent layout and custom-skill links are valid.
+- `./scripts/docker-test.sh`: run setup and validation in a clean Linux container.
 
 ## Coding Style & Naming Conventions
 
@@ -33,8 +33,8 @@ Every change should pass agent verification. For shell changes, also run `zsh -i
 
 ## Commit & Pull Request Guidelines
 
-The repository has no commit history yet. Use short, imperative commit subjects, optionally scoped, such as `shell: simplify PATH setup`. Keep commits focused. Pull requests should explain the affected package, list validation commands run, and call out new external dependencies or manual setup. Include screenshots only for changes with visible UI impact.
+Follow the `commit-message-format` skill for commit subjects. Keep commits focused. Pull requests should explain the affected package, list validation commands run, and call out new external dependencies or manual setup. Include screenshots only for changes with visible UI impact.
 
 ## Security & Configuration
 
-Never commit real credentials or populated `.secrets` files. Tracked configuration such as `.npmrc` must reference environment variables rather than contain tokens. Update `.secrets.example` with empty placeholders and follow `docs/public-release-checklist.md` before configuring a remote or publishing.
+Never commit real credentials or populated `.secrets` files. Tracked configuration such as `.npmrc` must reference environment variables rather than contain tokens. Update `.secrets.example` with empty placeholders and check that no secret or machine-specific value is tracked before you configure a remote or publish.
