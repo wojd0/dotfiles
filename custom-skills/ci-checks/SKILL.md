@@ -1,6 +1,6 @@
 ---
 name: ci-checks
-description: Investigate and diagnose failing CI checks, GitHub Actions workflows, and automated pipeline runs. Use when explicitely invoked.
+description: Investigate and diagnose failing CI checks, GitHub Actions workflows, and automated pipeline runs. Use when explicitly invoked.
 ---
 
 # Investigate failing CI checks
