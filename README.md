@@ -16,7 +16,11 @@ Public-safe dotfiles managed with GNU Stow.
 
 1. Clone this repo into your home directory as dotfiles.
 2. Run `./setup.sh` to install GNU Stow, Bun, pre-commit, the GitHub CLI, GnuPG, `fzf`, `jq`, Oh My Zsh, and the configured Oh My Zsh plugins, then link and configure the dotfiles.
-   - macOS and Linux both use Homebrew, which is installed when needed.
+   - The install script uses the first package manager that it finds, in this order:
+     1. Homebrew.
+     2. APT. Bun is installed with its official install script.
+     3. winget, on Windows only. Winget does not provide GNU Stow, Zsh, or pre-commit, so install them manually.
+   - If the script finds no package manager, it installs Homebrew.
    - Skills from `skills-lock.json` are restored with Bun.
    - Custom skills from `custom-skills/` are linked into `.agents/skills`.
    - Claude compatibility links point `~/.claude/rules` and `~/.claude/skills` to the canonical `.agents` directories.

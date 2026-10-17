@@ -14,6 +14,9 @@ for brew_bin in /opt/homebrew/bin /home/linuxbrew/.linuxbrew/bin /usr/local/bin;
 done
 
 "$REPO_DIR/scripts/install.sh"
+if [ -x "$HOME/.bun/bin/bun" ]; then
+  export PATH="$HOME/.bun/bin:$PATH"
+fi
 "$REPO_DIR/scripts/stow.sh"
 mkdir -p "$TMP_CODEBASES_DIR"
 "$REPO_DIR/scripts/cron.sh"
