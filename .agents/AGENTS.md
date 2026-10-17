@@ -4,6 +4,10 @@
 
 Write all prose in ASD-STE100 Simplified Technical English: docs, skills, Markdown files of any kind, reports, and any other in-file or in-chat prose.
 
+# Agent attribution rules
+
+Branches, commits, tickets, filenames and any other artifacts created by you should be named, authored or have any creator-related information pointing to the user as the creator. Do not use AI agent name anywhere.
+
 # Glossary
 
 - **Commit message**: a one-line subject. The `commit-message-format` skill holds the format and the procedure.
