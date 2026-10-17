@@ -282,10 +282,7 @@ prompt_git_line() {
   local branch
   branch=$(git_current_branch) || return
   [[ -z $branch ]] && return
-  local msg
-  msg=$(command git log -1 --pretty=%s 2>/dev/null)
   print -n "⎇  %F{magenta}${branch}%f"
-  [[ -n $msg ]] && print -n " %F{yellow}${msg//\%/%%}%f"
   print -n "$(parse_git_dirty)"
 }
 
