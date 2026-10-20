@@ -13,7 +13,11 @@ Use the connected Jira tools. Discover operations and their inputs before use.
 
 ## 1. Find the bucket
 
-Resolve the Jira site, project, and current user's account ID and display name. Reuse values already confirmed in this session. Use the current Jira account, not the Git author or a stored name.
+Start exactly one subagent for all Jira research in Steps 1–3. Give it the user's request and evidence, plus any site, account, project, or bucket already confirmed. Keep this subagent read-only and reuse it for ticket reads and metadata checks. It must not delegate to other agents. The main agent handles questions, proposals, and approved writes.
+
+If a subagent is unavailable, state this limit and do the same reads yourself. Do not report this as a subagent review.
+
+Ask the research subagent to resolve the Jira site, project, and current user's account ID and display name. Reuse values already confirmed in this session. Use the current Jira account, not the Git author or a stored name.
 
 A **bucket** is an existing parent ticket that groups this work. It can be an Epic or another parent type that the project supports. A project, board, sprint, or label alone is not a parent ticket.
 
@@ -23,11 +27,11 @@ If several buckets fit equally well, ask the user to choose. If no parent fits, 
 
 This step is complete when the project and parent are known, or a specific parent question is pending.
 
-## 2. Read the ticket context with subagents
+## 2. Read the ticket context with the same subagent
 
-Run these three research tasks with separate subagents. Give each agent the site, current account ID, request, evidence, and confirmed bucket. Agents have read access for this task; the main agent handles all writes.
+Have the same research subagent read all three ticket sets below. Give it the confirmed site, current account ID, and bucket. Reuse its earlier findings.
 
-| Agent | Tickets to read | Required result |
+| Ticket set | Tickets to read | Required result |
 | --- | --- | --- |
 | Bucket | The parent and every ticket inside it, including nested children | Shared scope, conventions, metadata, dependencies, and work already covered |
 | Related work | Tickets named by the user, direct issue links, and tickets found by searches for the requested work | Related work, duplicate candidates, useful evidence, and proposed link types and direction |
@@ -43,20 +47,18 @@ For bucket research, use the site's supported parent or Epic relationship. Read 
 - Inspect the description, acceptance criteria, parent, children, issue links, type, status, resolution, priority, labels, components, categories, versions, sprint, people, dates, and other returned fields. Keep field names and schemas with their values. Fetch field metadata if the response has only field IDs.
 - Read all comment pages when the ticket has comments. Read attachment metadata; open an attachment when it contains evidence needed for the request. Read additional history or properties when a field's meaning depends on them.
 - Page all ticket sets and field metadata. Fetch an individual ticket when a search result omits or truncates fields. Mark content that the source still truncates or access rules hide.
-- Share complete reads between agents to avoid repeated requests. Each agent must inspect its full assigned set.
-- Each agent returns the queries, ticket keys, unique ticket count, pages read, findings, and any missing fields or access limits. Return the evidence needed for decisions; keep raw ticket records out of tracked files.
+- Reuse complete reads by ticket key when a ticket belongs to more than one set. Inspect every unique ticket and record which sets contain it.
+- The research subagent returns the queries, ticket keys, unique ticket count, pages read, findings, and any missing fields or access limits for each set. Return the evidence needed for decisions; keep raw ticket records out of tracked files.
 
-If subagents are unavailable, state this limit and do the same reads in sequence. Do not report this as a subagent review.
-
-Merge the results before writing the proposal. Resolve conflicting conventions with the target bucket and project. Distinguish user text from empty templates, imported text, and automation. Report a duplicate before proposing a second ticket. If the same work already exists, ask whether the user wants a separate ticket.
+Review the findings before writing the proposal. Resolve conflicting conventions with the target bucket and project. Distinguish user text from empty templates, imported text, and automation. Report a duplicate before proposing a second ticket. If the same work already exists, ask whether the user wants a separate ticket.
 
 This step is complete when all three sets are read and their coverage is known. State any remaining access limit beside the affected proposal detail.
 
 ## 3. Select the type, fields, and status
 
-List the issue types that the user can create in the target project. Choose the type from the work's purpose, the parent hierarchy, and similar tickets. Check the type's description and subtask flag. Use the project's actual types; a bug can be a child ticket if the hierarchy and local practice require it.
+Ask the same research subagent to list the issue types that the user can create in the target project. Choose the type from the work's purpose, the parent hierarchy, and similar tickets. Check the type's description and subtask flag. Use the project's actual types; a bug can be a child ticket if the hierarchy and local practice require it.
 
-Read create-field metadata for the selected project and type, including optional fields. With the Atlassian connector, discover and use:
+Have it read create-field metadata for the selected project and type, including optional fields. With the Atlassian connector, discover and use:
 
 - `listJiraProjectIssueTypesMetadata`, with all pages;
 - `getJiraIssueTypeMetaWithFields`, with `requiredFieldsOnly: false` and all pages;
