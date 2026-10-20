@@ -1,0 +1,3 @@
+interface:
+  display_name: "Jira Ticket"
+  short_description: "Propose a Jira ticket and create it when approved"
