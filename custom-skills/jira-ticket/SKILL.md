@@ -93,9 +93,8 @@ Then ask: **How do you want to proceed?**
 
 a) Create the ticket.
 b) Create the ticket and assign it to [current user's display name].
-c) Change something.
 
-Use a question tool when available. Include the proposal in the question or the same response. Keep these three choices.
+Use a question tool when available. Include the proposal in the question or the same response. Offer only these two choices. Use the tool's built-in free-text option for custom feedback or edits.
 
 **STOP HERE. End the turn with the proposal and questionnaire.** The proposal stage is complete when the user has received both. Make no Jira writes while the answer is pending. A preselected choice, silence, elapsed time, or earlier general permission is not an answer.
 

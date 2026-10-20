@@ -14,9 +14,9 @@ Offer the three most relevant supported status names, plus **Other** for a typed
 
 **Stop and end the turn after the status question.** Make no Jira writes until the user answers it. If the user already gave a valid status with choice b, use it without a repeated question. Then create the ticket with the procedure below, assign it to the confirmed current account ID, and set the selected status through the supported workflow.
 
-## Choice c or edits
+## Custom feedback or edits
 
-Apply the changes to the proposal. Preserve the user's latest wording. Repeat research or field checks only where the change affects them. Show the complete revised proposal and the three choices from Step 4, then stop again. Editing instructions alone do not authorize creation.
+Apply the changes to the proposal. Preserve the user's latest wording. Repeat research or field checks only where the change affects them. Show the complete revised proposal and the two choices from Step 4, with the tool's built-in free-text option for more feedback, then stop again. Editing instructions alone do not authorize creation.
 
 If the user explicitly requests edits and creation in the same answer, apply those edits and proceed within that instruction. A cancellation ends the task without creation.
 
