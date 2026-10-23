@@ -1,0 +1,4 @@
+interface:
+  display_name: "Polish Tax Credit"
+  short_description: "Prepare deadline-aware monthly tax reports"
+  default_prompt: "Use $polish-tax-credit to check whether my monthly Polish tax report is due and prepare it when required."
