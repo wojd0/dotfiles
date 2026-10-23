@@ -1,0 +1,212 @@
+# One-off workflow: copy the versions of an npm package that are already on
+# GitHub Packages to Cloudsmith.
+#
+# The workflow does not build anything. It downloads each published tarball
+# from GitHub Packages and uploads the same file to Cloudsmith. Thus the
+# sha512 integrity of each version stays the same on both registries.
+#
+# Use it in this sequence:
+#   1. Start it with dry-run = true. Read the log and the summary.
+#   2. Start it with dry-run = false. This copies all versions.
+#
+# You can start it again safely. It skips each version that Cloudsmith already has.
+# When the backfill is complete, delete this workflow and its branch.
+
+name: Cloudsmith backfill
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: The npm package to copy.
+        type: string
+        default: "__PACKAGE__"
+      dry-run:
+        description: Do not upload. Only show what the workflow will publish.
+        type: boolean
+        default: true
+  # TEMPORARY. GitHub can start a manual workflow from a branch only after the workflow ran once.
+  # This trigger makes one run in which the job is skipped. Remove it after that run.
+  push:
+    branches:
+      - __BRANCH__
+
+permissions:
+  # Download the tarballs from GitHub Packages with GITHUB_TOKEN.
+  packages: read
+  # Get an OIDC token for the Cloudsmith service account.
+  id-token: write
+
+jobs:
+  backfill:
+    # The push run must do nothing. Only a manual start runs the job.
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    env:
+      PKG: ${{ inputs.package }}
+      GH_REGISTRY: https://npm.pkg.github.com/
+      CS_REGISTRY: __CLOUDSMITH_REGISTRY__
+      DRY_RUN: ${{ inputs.dry-run }}
+    steps:
+      # No registry-url here. The npm authentication is in a private config file (see below).
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      # The OIDC service slug is the repository name in lowercase, with "/" and "." changed to "-".
+      - name: Set Cloudsmith OIDC service slug
+        run: |
+          REPOSITORY_NAME="$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]' | tr '/.' '-')"
+          echo "CLOUDSMITH_OIDC_SERVICE_SLUG=${REPOSITORY_NAME}" >> "$GITHUB_ENV"
+
+      # This step exports CLOUDSMITH_API_KEY. The key is a short-lived OIDC token
+      # for the service account, not a personal key.
+      - name: Authenticate with Cloudsmith
+        uses: cloudsmith-io/cloudsmith-cli-action@69e169e2ad9bc9a1599c2dff464061a00fe9f8ba # v3.1.1
+        with:
+          oidc-namespace: ${{ vars.CLOUDSMITH_NAMESPACE }}
+          oidc-service-slug: ${{ env.CLOUDSMITH_OIDC_SERVICE_SLUG }}
+          export-auth-token: "true"
+          verify-auth: "true"
+
+      # All npm commands after this step run in an empty folder outside the repository.
+      # Reason: a scope mapping in an .npmrc file has priority over --registry.
+      # It could send the downloads or the uploads to the wrong registry.
+      #
+      # NPM_CONFIG_USERCONFIG tells npm to use the private config file in place of ~/.npmrc.
+      # The file gives each token only to its own registry host.
+      - name: Write a private npm config
+        env:
+          GH_NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          WORK_DIR="$RUNNER_TEMP/backfill"
+          mkdir -p "$WORK_DIR"
+
+          {
+            echo "//npm.pkg.github.com/:_authToken=${GH_NPM_TOKEN}"
+            echo "//${CS_REGISTRY#https://}:_authToken=${CLOUDSMITH_API_KEY}"
+          } > "$WORK_DIR/npmrc"
+
+          echo "WORK_DIR=$WORK_DIR" >> "$GITHUB_ENV"
+          echo "NPM_CONFIG_USERCONFIG=$WORK_DIR/npmrc" >> "$GITHUB_ENV"
+
+      # This step only reads. It does not publish anything.
+      # It finds the versions to copy and shows them in the log and in the job summary.
+      - name: Find the versions to copy
+        id: plan
+        run: |
+          set -euo pipefail
+          cd "$WORK_DIR"
+
+          # The dist-tags on GitHub Packages. NEXT is empty if there is no "next" dist-tag.
+          LATEST=$(npm view "$PKG" dist-tags.latest --registry="$GH_REGISTRY")
+          NEXT=$(npm view "$PKG" dist-tags.next --registry="$GH_REGISTRY")
+          echo "GitHub Packages: latest=$LATEST next=${NEXT:-<none>}"
+
+          # All versions on GitHub Packages are candidates to copy.
+          # npm returns a string, not an array, if the package has only one version.
+          CANDIDATES=$(npm view "$PKG" versions --json --registry="$GH_REGISTRY" | jq -r 'if type == "array" then .[] else . end')
+
+          # The versions that Cloudsmith has now.
+          # A 404 error means that Cloudsmith does not have the package yet. That is expected.
+          # Any other error (for example 401) stops the workflow.
+          if EXISTING=$(npm view "$PKG" versions --json --registry="$CS_REGISTRY" 2> view-error.log); then
+            :
+          elif grep -q "E404" view-error.log; then
+            EXISTING="[]"
+          else
+            cat view-error.log
+            exit 1
+          fi
+
+          # Make the table for the job summary.
+          {
+            echo "### Cloudsmith backfill plan for \`$PKG\`"
+            echo ""
+            echo "dry-run: \`$DRY_RUN\`"
+            echo ""
+            echo "| Version | Action | dist-tag |"
+            echo "| --- | --- | --- |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # Keep only the versions that Cloudsmith does not have.
+          # Give each version a dist-tag:
+          #   - "latest" and "next" go to the same versions as on GitHub Packages.
+          #   - All other versions get the temporary "backfill" tag.
+          #     Without --tag, npm would tag each old version "latest".
+          TO_COPY=""
+          for v in $CANDIDATES; do
+            if echo "$EXISTING" | jq -e --arg v "$v" 'if type == "array" then index($v) != null else . == $v end' > /dev/null; then
+              echo "skip    $v (Cloudsmith already has it)"
+              echo "| $v | skip (already on Cloudsmith) | |" >> "$GITHUB_STEP_SUMMARY"
+              continue
+            fi
+
+            if [ "$v" = "$LATEST" ]; then
+              TAG=latest
+            elif [ "$v" = "$NEXT" ]; then
+              TAG=next
+            else
+              TAG=backfill
+            fi
+
+            echo "copy    $v (dist-tag $TAG)"
+            echo "| $v | copy | $TAG |" >> "$GITHUB_STEP_SUMMARY"
+            TO_COPY="$TO_COPY $v:$TAG"
+          done
+
+          echo "to-copy=$TO_COPY" >> "$GITHUB_OUTPUT"
+
+      # For each version: download the tarball, compare its integrity with GitHub Packages, then publish it.
+      # If dry-run is true, npm publish gets --dry-run and uploads nothing.
+      - name: Copy the versions
+        env:
+          TO_COPY: ${{ steps.plan.outputs.to-copy }}
+        run: |
+          set -euo pipefail
+          cd "$WORK_DIR"
+
+          if [ -z "$TO_COPY" ]; then
+            echo "Nothing to copy."
+            exit 0
+          fi
+
+          PUBLISH_FLAGS=""
+          if [ "$DRY_RUN" = "true" ]; then
+            PUBLISH_FLAGS="--dry-run"
+          fi
+
+          for ITEM in $TO_COPY; do
+            VERSION="${ITEM%%:*}"
+            TAG="${ITEM##*:}"
+            echo "::group::$VERSION (dist-tag $TAG)"
+
+            # Download the published tarball. npm pack does not rebuild it.
+            PACK_JSON=$(npm pack "$PKG@$VERSION" --registry="$GH_REGISTRY" --json)
+            TGZ=$(echo "$PACK_JSON" | jq -r '.[0].filename')
+            TGZ_INTEGRITY=$(echo "$PACK_JSON" | jq -r '.[0].integrity')
+
+            # Stop if the file is not the same file that GitHub Packages has.
+            GH_INTEGRITY=$(npm view "$PKG@$VERSION" dist.integrity --registry="$GH_REGISTRY")
+            if [ "$TGZ_INTEGRITY" != "$GH_INTEGRITY" ]; then
+              echo "::error::Integrity mismatch for $VERSION: tarball=$TGZ_INTEGRITY registry=$GH_INTEGRITY"
+              exit 1
+            fi
+            echo "Integrity OK: $TGZ_INTEGRITY"
+
+            npm publish "$TGZ" --registry="$CS_REGISTRY" --tag "$TAG" $PUBLISH_FLAGS
+
+            rm "$TGZ"
+            echo "::endgroup::"
+          done
+
+      # The "backfill" dist-tag has no use after the copy. Remove it from Cloudsmith.
+      # This step does not stop the workflow if the remove fails.
+      - name: Remove the temporary backfill dist-tag
+        if: ${{ !inputs.dry-run }}
+        run: |
+          cd "$WORK_DIR"
+          npm dist-tag rm "$PKG" backfill --registry="$CS_REGISTRY" || echo "::warning::Could not remove the backfill dist-tag. Remove it in the Cloudsmith UI."
