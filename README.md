@@ -31,6 +31,16 @@ Public-safe dotfiles managed with GNU Stow.
    - The cron jobs from `cron/crontab` are installed into your user crontab.
 3. Fill in the secret values.
 
+## Update
+
+Run `./scripts/update.sh` to get the latest changes and apply them. The script does these steps:
+
+1. It stops if the working tree has local changes.
+2. It runs `git pull --rebase`.
+3. If the install files changed, it runs `./setup.sh`. Otherwise, it runs `./scripts/stow.sh`, and it runs `./scripts/cron.sh` when `cron/` changed.
+4. It runs `./scripts/verify-agents.sh`.
+5. If `shell/` changed, it tells you to start a new shell.
+
 ## GPG commit signing
 
 Run `./scripts/setup-gpg-signing.sh` from a terminal after installing the
