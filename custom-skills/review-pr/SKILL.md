@@ -47,31 +47,49 @@ Anchor with `side: "RIGHT"` and the head's line number. A comment on a removed l
 
 A file comment's anchor is its `path` alone, and GitHub accepts it for any file that `repos/<owner>/<repo>/pulls/<number>/files` lists. A review-body comment has no anchor. It joins the review body as its own paragraph, after anything the user already wrote there.
 
-Write each comment in the user's voice, modelled on their own comments in the pending review when there are any:
+Write each comment in the user's voice. Model it on the user's comments in the pending review and in this pull request, when there are any.
 
-- One short clause, or the problem and a question on the next line.
-- Lowercase start, a question mark as the only closing punctuation, and `this` or `here` for the anchored code.
-- Requests as questions: ex.`can we ...?`, `maybe ...?`, `shouldn't it be ...?`.
-- For a concrete edit of the anchored lines, a few words and a `suggestion` block holding the complete replacement lines with their indentation.
-- Each comment starts with its point and reads on its own.
+The reader is the pull request author, a cold reader who did not see the code-review report. Make each comment specific enough for that reader to act on:
+
+- Name the case that breaks: the exact input, state, or condition.
+- Name the fix: the API, function, value, or file to use. A `suggestion` block can show it.
+- Link the source when there is one: code that already does it right, the docs page, or the rule file.
+- Write the code's identifiers in backticks, and replace the report's shorthand with the thing that it names.
+
+Choose the form that fits the point. Most of the user's comments are statements or suggestions, and a few are questions:
+
+- A statement of the problem and its effect, when the fix is clear.
+- A suggestion with `could ...`, `you could ...`, `it would make sense to ...`, or `I think we better ...`.
+- A request with `please ...` for a repository convention.
+- A bare label for a small nit, for example `commented-out code`.
+- A question when the author knows something that the user does not, or when the fix is a judgement call: `shouldn't it be ...?`, `maybe ...?`, `can we ...?`.
+- A few words of reason and a `suggestion` block for a concrete edit of the anchored lines. The block holds the complete replacement lines with their indentation, and it is the request by itself.
+
+Start each comment with its point, in one or two sentences. A design point can take a short paragraph. Use a lowercase start, no closing period, and `this` or `here` for the anchored code.
 
 ````text
-this check passes even when the file is written, because the fixture never exists on disk
+`existsSync` reads the real disk, but the migration writes only to the virtual `Tree`, so this passes even when the file is never created
+`tree.exists(path)` would check the right place
 
-this isn't covered in `parser.spec.ts`
+`chevron_right` isn't mirrored, so collapsed nodes point the wrong way in RTL
 
-the first file that fails to parse leaves every remaining file unformatted
-can we catch the error per file?
+instead of the negative check you could use a ternary here, like in `toggleAllRows` above
 
-shouldn't it be `@scope/ui/button`?
+`compileComponents` is only needed with `@defer` blocks https://angular.dev/guide/testing/components-basics#reduce-the-setup
 
-for consistency
+please mark all continuous tasks with the `continuous` flag
+
+commented-out code
+
+shouldn't `eventemitter3` be a dependency of `js-api`?
+
+this drops `--sat-breadcrumbs-gap`, so consumers that override it lose their custom gap
 ```suggestion
-export const DEFAULT_TIMEOUT_MS = 5000;
+  gap: var(--sat-breadcrumbs-gap, 4px);
 ```
 ````
 
-Done when every finding from both axes is a line or file comment with a verified anchor, a review-body comment, an offer, or a drop with its reason.
+Done when every finding from both axes is a line or file comment with a verified anchor, a review-body comment, an offer, or a drop with its reason, and a cold reader can act on each comment without the report.
 
 ## Step 4: Posting into the pending review
 
@@ -82,7 +100,7 @@ With no pending review, create one holding the line comments and the review body
 ```bash
 gh api --method POST "repos/<owner>/<repo>/pulls/<number>/reviews" --jq '{id, node_id, state, html_url}' --input - <<'EOF'
 {"commit_id": "<headRefOid>", "body": "can we split the migration into its own pull request?", "comments": [
-  {"path": "src/parser.ts", "line": 42, "side": "RIGHT", "body": "can we catch the error per file?"}
+  {"path": "src/parser.ts", "line": 42, "side": "RIGHT", "body": "the error could be caught per file, so one file that fails to parse leaves the rest formatted"}
 ]}
 EOF
 ```
@@ -94,7 +112,7 @@ Add each file comment as a thread through the review's `node_id`, and with an ex
 ```bash
 gh api graphql --jq '.data.addPullRequestReviewThread.thread' --input - <<'EOF'
 {"query": "mutation($input: AddPullRequestReviewThreadInput!) { addPullRequestReviewThread(input: $input) { thread { id } } }",
- "variables": {"input": {"pullRequestReviewId": "<node_id>", "path": "src/parser.ts", "line": 42, "side": "RIGHT", "body": "can we catch the error per file?"}}}
+ "variables": {"input": {"pullRequestReviewId": "<node_id>", "path": "src/parser.ts", "line": 42, "side": "RIGHT", "body": "the error could be caught per file, so one file that fails to parse leaves the rest formatted"}}}
 EOF
 ```
 
