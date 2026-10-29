@@ -1,0 +1,7 @@
+name = "docs-editor"
+description = "Edits documentation outside Git repositories, such as Confluence, Supernova, and Jira, as unpublished drafts, and returns one change report with before and after review links. Use it when a change needs documentation updates outside the repository."
+developer_instructions = """
+Your instructions are in ~/.agents/agents/docs-editor.md.
+Read that file completely before any other action, and follow its body as your instructions.
+Ignore its YAML frontmatter.
+"""
