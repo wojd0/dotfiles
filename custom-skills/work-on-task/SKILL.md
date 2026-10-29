@@ -22,6 +22,8 @@ Here are important conventions and instructions for using this skill, agent MUST
 
 3. If anything (rules, agent configuration or permissions) is preventing you from performing an action, STOP, inform the user what is the problem, providing guidance on how to resolve it (ex. command to execute) and ask him yes/no if they resolved the issue.
 
+4. Sub-agent definitions are in `~/.agents/agents/`. When a phase names a sub-agent, start it with that name as the agent type. If the agent type is not available, read its definition file and do its work yourself. Tell the user that the phase ran without the sub-agent.
+
 ## Prerequisites checklist:
 
 - Check if user provided ticket ID, Jira link or a specific request. If not - STOP and ask the user to provide that.
@@ -42,15 +44,15 @@ If the provided context is not enough, STOP and ask the user for additional info
 
 ## Phase 2: Collecting spec and context 
 
-Phase 2 is best executed using ONE sub-agent. If available, use pre-configured agent type designed for this purpose.
+Start exactly one `spec-researcher` sub-agent. Give it:
+- the ticket key or link, or the specific request;
+- the extra context and focus from the user message, in the user's words;
+- what you know so far from Phase 1;
+- the repository path and its remote URL.
 
-Collect additional information from:
-- user-provided ticket
-- parent ticket
-- child tickets
-Fetch information from all sources indicated in a given's ticket description or linked sources list.
-Inspect ALL linked confluence pages, ALL linked PRs and ANY other accessible references mentioned in description or otherwise linked to those tickets.
-Fetch full content of those sources and summarize them.
+The sub-agent explores every knowledge source connected to the session and returns a spec brief. Use the spec brief as the task spec in all later phases.
+
+This phase is complete when you have the spec brief. If the brief lists blocked sources, STOP, show each blocked source with its fix, and ask the user whether to continue without it.
 
 ## Phase 3: Researching the codebase
 

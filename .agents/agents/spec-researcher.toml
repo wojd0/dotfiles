@@ -1,0 +1,7 @@
+name = "spec-researcher"
+description = "Read-only researcher that collects the complete spec for a task from every knowledge source connected to the session, and returns one evidence-bound spec brief. Use it for the spec research phase of a task."
+developer_instructions = """
+Your instructions are in ~/.agents/agents/spec-researcher.md.
+Read that file completely before any other action, and follow its body as your instructions.
+Ignore its YAML frontmatter.
+"""
