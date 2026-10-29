@@ -6,7 +6,7 @@ Public-safe dotfiles managed with GNU Stow.
 
 - shell: zsh and shell startup files
 - git: git configuration
-- `.agents`: canonical rules, shared skill references, MCP configuration, and generated lock-managed skills
+- `.agents`: canonical rules, sub-agent definitions, shared skill references, MCP configuration, and generated lock-managed skills
 - `custom-skills`: tracked custom skill sources linked into `.agents/skills`
 - local: tracked machine configuration plus a template for gitignored secrets
 - cron: crontab entries and the jobs they run
@@ -23,7 +23,8 @@ Public-safe dotfiles managed with GNU Stow.
    - If the script finds no package manager, it installs Homebrew.
    - Skills from `skills-lock.json` are restored with Bun.
    - Custom skills from `custom-skills/` are linked into `.agents/skills`.
-   - Claude compatibility links point `~/.claude/rules` and `~/.claude/skills` to the canonical `.agents` directories.
+   - Claude compatibility links point `~/.claude/rules`, `~/.claude/skills`, and `~/.claude/agents` to the canonical `.agents` directories.
+   - A Codex compatibility link points `~/.codex/agents` to `.agents/agents`.
    - This creates `~/.secrets` from the tracked example when it is missing.
    - Existing secrets remain in the home directory and are never managed by Stow.
    - The `local` Stow package links only public-safe machine configuration into your home directory.
@@ -143,4 +144,5 @@ arrives only when the environment runs the script again.
 - `.agents` is the canonical runtime location for agent rules, skills, and MCP configuration.
 - Tracked custom skill sources live at repository-root `custom-skills/` and are linked into `.agents/skills`.
 - Provider-specific runtime directories contain compatibility links only; they are not separate Stow packages.
-- Claude's `rules` and `skills` paths are linked automatically because Claude does not read `.agents` directly.
+- Claude's `rules`, `skills`, and `agents` paths are linked automatically because Claude does not read `.agents` directly.
+- Sub-agent definitions live in `.agents/agents`. Each sub-agent has a canonical `<name>.md` file in the Claude Code sub-agent format. A `<name>.toml` Codex role file beside it points Codex to the same Markdown file. `~/.codex/agents` links to this directory.

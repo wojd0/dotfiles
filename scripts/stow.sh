@@ -101,17 +101,18 @@ mkdir -p "$HOME/.agents"
 stow --adopt -t "$HOME/.agents" .agents
 
 link_agent_compatibility_path() {
-  source_name="$1"
-  link_name="$2"
+  provider_dir="$1"
+  source_name="$2"
+  link_name="$3"
   source_path="$HOME/.agents/$source_name"
-  link_path="$HOME/.claude/$link_name"
+  link_path="$HOME/$provider_dir/$link_name"
 
   if [ ! -e "$source_path" ]; then
     echo "error: canonical agent path $source_path is missing" >&2
     exit 1
   fi
 
-  mkdir -p "$HOME/.claude"
+  mkdir -p "$HOME/$provider_dir"
 
   if [ -L "$link_path" ]; then
     if [ "$link_path" -ef "$source_path" ]; then
@@ -130,9 +131,11 @@ link_agent_compatibility_path() {
   ln -s "../.agents/$source_name" "$link_path"
 }
 
-link_agent_compatibility_path "rules" "rules"
-link_agent_compatibility_path "skills" "skills"
-link_agent_compatibility_path "AGENTS.md" "CLAUDE.md"
+link_agent_compatibility_path ".claude" "rules" "rules"
+link_agent_compatibility_path ".claude" "skills" "skills"
+link_agent_compatibility_path ".claude" "agents" "agents"
+link_agent_compatibility_path ".claude" "AGENTS.md" "CLAUDE.md"
+link_agent_compatibility_path ".codex" "agents" "agents"
 
 prepare_secrets_file() {
   local template="local/.secrets.example"

@@ -47,6 +47,7 @@ mkdir -p "$HOME/.claude"
 link_path "$REPO_DIR/.agents" "$HOME/.agents"
 link_path "$REPO_DIR/.agents/rules" "$HOME/.claude/rules"
 link_path "$REPO_DIR/.agents/skills" "$HOME/.claude/skills"
+link_path "$REPO_DIR/.agents/agents" "$HOME/.claude/agents"
 link_path "$REPO_DIR/.agents/AGENTS.md" "$HOME/.claude/CLAUDE.md"
 
 echo "Cloud agent configuration linked from $REPO_DIR."

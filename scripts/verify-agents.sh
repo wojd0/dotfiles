@@ -34,6 +34,25 @@ for skill_dir in custom-skills/*; do
   fi
 done
 
+for agent_file in .agents/agents/*.md; do
+  if [ ! -f "$agent_file" ]; then
+    continue
+  fi
+
+  agent_name="$(basename "$agent_file" .md)"
+  codex_file=".agents/agents/$agent_name.toml"
+
+  if ! grep -qx "name: $agent_name" "$agent_file"; then
+    echo "$agent_file must declare name: $agent_name"
+    exit 1
+  fi
+
+  if [ ! -f "$codex_file" ] || ! grep -qx "name = \"$agent_name\"" "$codex_file"; then
+    echo "$codex_file must declare name = \"$agent_name\""
+    exit 1
+  fi
+done
+
 provider_directories=(
   "agents"
   "claude"
