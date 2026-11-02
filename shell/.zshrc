@@ -175,6 +175,9 @@ alias bsw='bun start workspace-hxp'
 alias cldx='claude --allow-dangerously-skip-permissions'
 alias cldh='claude --allow-dangerously-skip-permissions --effort high'
 alias cldmax='claude --allow-dangerously-skip-permissions --effort max'
+codex() {
+  command codex -c 'model="gpt-6.1-sol"' -c 'model_reasoning_effort="high"' "$@"
+}
 
 # use nvm if there is a .nvmrc file here
 if [[ -f ".nvmrc" ]] && command -v nvm >/dev/null 2>&1; then
