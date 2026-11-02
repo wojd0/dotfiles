@@ -1,6 +1,6 @@
 ---
 name: ci-checks
-description: Investigate and diagnose failing CI checks, GitHub Actions workflows, and automated pipeline runs. Use when explicitly invoked.
+description: Investigate and diagnose failing CI checks, GitHub Actions workflows, and automated pipeline runs.
 ---
 
 # Investigate failing CI checks
@@ -13,30 +13,39 @@ Rename the agent session to `[pr-number or branch] [repository] failing CI` — 
 
 **Important:** The PR may not be for the branch you are currently on.
 
+## Run metadata collection and preparation
+
 1. **Fetch CI status** – Use `gh pr view <number> --repo <owner/repo>` and `gh pr checks <number> --repo <owner/repo>` to list failing checks. For branch/run investigations use `gh run list --branch <branch> --limit 5`.
 2. **Get run details** – For each failing check, always fetch the latest attempt number first with `gh run view <run-id> --json attemptNumber --jq '.attemptNumber'`, then pass it explicitly: `gh run view <run-id> --attempt <N> --log-failed`. Fall back to `gh api` to fetch annotations/logs when log download fails. Never inspect attempt 1 if a newer attempt exists.
 3. **Get PR changes** – Run `gh pr diff <number> --repo <owner/repo>` and `gh pr view <number> --json files` to see which files were modified. Skip this step for non-PR runs.
 4. **Pin a checkout** – When the analysis needs local test or source files, pin a checkout following `~/.agents/references/temporary-codebases.md`:
    - For a PR, use the commit `headRefOid` and the refs `<baseRefName>` and `pull/<number>/head` from `gh pr view <number> --repo <owner/repo> --json headRefOid,baseRefName`, and the name `ci/<owner>/<repo>/PR-<number>`. Then `git rev-list --count HEAD..<remote>/<baseRefName>` in the checkout shows how far the PR is behind its base; over 200 commits is a potential integration risk.
    - For a run without a PR, use the commit `headSha` and the ref `headBranch` from `gh run view <run-id> --json headSha,headBranch`, and the name `ci/<owner>/<repo>/run-<run-id>`.
-5. **Analyze each failure** – For each failing check:
-   - Identify the failing test/job and error message
-   - Check if the failure is related to PR changes (modified files) or unrelated (flaky, external service, cascading)
-   - For e2e failures: locate the test file, understand the assertion/behavior, and correlate with PR changes
-   - For label/other checks: explain the cause and required action
-   - Read test and source files from the checkout pinned in step 4
-6. **Summarize** – Always end with the structured summary below.
+
+### Notes
+- Always check all run attempts.
+- Aggregation jobs (e.g. Final Results) and external services (e.g. SonarCloud) often fail as cascading or transient issues.
+
+## Investigation
+Look for the cause of the problem based on your assumptions and most probable causes of a failure. 
+Below is a list of most common places to find clues, always check all of those no matter the outcome of your own investigation:
+
+### Check recent code activity on the codebase
+Check for changes merged recently to repository's master branch and the branch on which the failing tests were run on if it's not the repository's master.
+Range of this search should always be from the last green workflow run that passed on first try.
+No type of changes is more important than others - investigate a diff of each change closely.
+If the scope of those changes is big, utilize subagents for a close assessment.
+
+### Check non-code changes that could be made on the remote VCS host 
+Configs that have expiration dates or can be changed independently from code and impact CI behavior and outcomes (ex. tokens, secrets, permissions, organization settings etc.) should be checked as well.
 
 ## Fixing failures
 
 When the user asks to fix a failing check, only apply the code changes locally, in a checkout pinned as in step 4, and give its path when it is a temporary codebase. Do **not** commit or push — let the user decide when to commit.
 
-## Notes
+## Summarize
+Always end with the structured summary below.
 
-- Always use the latest run attempt. Fetch it with `gh run view <run-id> --json attemptNumber --jq '.attemptNumber'` and pass `--attempt <N>` to all subsequent `gh run view` calls.
-- `gh run view --log-failed` may fail with stream errors; fall back to `gh api repos/<owner>/<repo>/actions/jobs/<job-id>/logs` or annotations.
-- Aggregation jobs (e.g. Final Results) and external services (e.g. SonarCloud) often fail as cascading or transient issues.
-- When the PR changes i18n keys or UI labels, check for missing translations and e2e assertions that expect old text.
 
 ## Summary template
 
@@ -71,5 +80,5 @@ Use the card-style format below for each failing test/check. Pick one reason per
 **Verdict** must be exactly one of:
 
 - 🔁 Re-run – when all failures are unrelated/flaky/cascading
-- 🔧 Needs fixing – when at least one failure is caused by PR changes
-- 🔍 Investigate infra – when failures point to infrastructure/environment problems
+- 🔧 Needs fixing – when at least one failure is caused by code changes
+- 🔍 Investigate infrastructure – when failures point to infrastructure/environment or non-code-change-based problems
