@@ -47,8 +47,9 @@ Run `./scripts/update.sh` to get the latest changes and apply them. The script d
 On Windows, run `.\scripts\sync-agents.ps1` to install only the agent configuration. The script does not install packages and does not touch the `shell`, `git`, `local`, or `cron` packages. It does these steps:
 
 1. It runs `git pull --ff-only` when the working tree is clean. Use `-NoPull` to skip this step.
-2. It links `.agents` into `~/.agents`, and links each lock-managed and custom skill into `~/.agents/skills`.
-3. It links `rules`, `agents`, `skills`, and `CLAUDE.md` into `~/.claude`, and `agents` into `~/.codex`.
+2. It installs the skills from `skills-lock.json` with `bun x skills experimental_install`. Then it restores the tracked files in `.agents` and `skills-lock.json` with `git restore`. Bun must be on `PATH` or in `~/.bun/bin`.
+3. It links `.agents` into `~/.agents`, and links each lock-managed and custom skill into `~/.agents/skills`.
+4. It links `rules`, `agents`, `skills`, and `CLAUDE.md` into `~/.claude`, and `agents` into `~/.codex`.
 
 Directories become junctions and files become hard links, so the script needs no administrator rights. A git pull breaks the hard links, so run the script again after each pull. The script moves a changed file that it does not manage to `<name>.bak-<timestamp>`. It skips a skill directory that another installer owns.
 

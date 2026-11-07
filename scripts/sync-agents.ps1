@@ -4,6 +4,7 @@
 
 .DESCRIPTION
   Links the contents of .agents and custom-skills into ~/.agents, ~/.claude, and ~/.codex.
+  It installs the skills from skills-lock.json with Bun first.
   It does not install packages and does not touch the shell, git, local, or cron packages.
   Directories become junctions and files become hard links, so no administrator rights are needed.
   Hard links break when git replaces a file, so run this script again after each pull.
@@ -116,6 +117,29 @@ if (-not $NoPull) {
     if ($LASTEXITCODE -ne 0) { throw 'git pull --ff-only failed' }
   }
 }
+
+function Install-LockedSkills {
+  $bun = (Get-Command bun -ErrorAction SilentlyContinue).Source
+  if (-not $bun) { $bun = Join-Path $HOME '.bun\bin\bun.exe' }
+  if (-not (Test-Path $bun)) { throw 'bun is required; run: winget install Oven-sh.Bun' }
+
+  Push-Location $Repo
+  try {
+    & $bun x skills experimental_install
+    $code = $LASTEXITCODE
+    git restore --worktree -- .agents skills-lock.json
+  } finally { Pop-Location }
+  if ($code -ne 0) { throw 'skills install from skills-lock.json failed' }
+
+  $lock = Get-Content (Join-Path $Repo 'skills-lock.json') -Raw | ConvertFrom-Json
+  foreach ($name in $lock.skills.PSObject.Properties.Name) {
+    if (-not (Test-Path (Join-Path $Agents "skills\$name\SKILL.md"))) {
+      throw "lock-managed skill '$name' was not restored"
+    }
+  }
+}
+
+Install-LockedSkills
 
 # Lock-managed skills are real directories in .agents/skills. With core.symlinks=false,
 # the custom-skill links there are plain files, so custom skills come from custom-skills/.
