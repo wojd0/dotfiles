@@ -42,6 +42,16 @@ Run `./scripts/update.sh` to get the latest changes and apply them. The script d
 4. It runs `./scripts/verify-agents.sh`.
 5. If `shell/` changed, it tells you to start a new shell.
 
+## Windows agent sync
+
+On Windows, run `.\scripts\sync-agents.ps1` to install only the agent configuration. The script does not install packages and does not touch the `shell`, `git`, `local`, or `cron` packages. It does these steps:
+
+1. It runs `git pull --ff-only` when the working tree is clean. Use `-NoPull` to skip this step.
+2. It links `.agents` into `~/.agents`, and links each lock-managed and custom skill into `~/.agents/skills`.
+3. It links `rules`, `agents`, `skills`, and `CLAUDE.md` into `~/.claude`, and `agents` into `~/.codex`.
+
+Directories become junctions and files become hard links, so the script needs no administrator rights. A git pull breaks the hard links, so run the script again after each pull. The script moves a changed file that it does not manage to `<name>.bak-<timestamp>`. It skips a skill directory that another installer owns.
+
 ## GPG commit signing
 
 Run `./scripts/setup-gpg-signing.sh` from a terminal after installing the
