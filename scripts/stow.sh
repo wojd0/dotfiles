@@ -11,14 +11,9 @@ require_command() {
   fi
 }
 
-require_command bun
 require_command git
 require_command stow
-
-if [ ! -f "skills-lock.json" ]; then
-  echo "error: $REPO_DIR/skills-lock.json is missing" >&2
-  exit 1
-fi
+require_command jq
 
 ensure_stow_sources_safe() {
   local untracked_files
@@ -38,62 +33,7 @@ ensure_stow_sources_safe() {
 
 ensure_stow_sources_safe
 
-remove_custom_skill_links() {
-  skill_dir="$1"
-  skill_name="${skill_dir##*/}"
-  link_path=".agents/skills/$skill_name"
-  link_target="../../custom-skills/$skill_name"
-
-  if [ -L "$link_path" ] && [ "$(readlink "$link_path")" = "$link_target" ]; then
-    unlink "$link_path"
-  fi
-}
-
-link_custom_skill() {
-  skill_dir="$1"
-  skill_name="${skill_dir##*/}"
-  link_path=".agents/skills/$skill_name"
-  link_target="../../custom-skills/$skill_name"
-
-  if [ -e "$link_path" ] || [ -L "$link_path" ]; then
-    echo "error: custom skill '$skill_name' conflicts with a lock-managed skill" >&2
-    exit 1
-  fi
-
-  ln -s "$link_target" "$link_path"
-}
-
-mkdir -p ".agents/skills"
-
-for skill_dir in custom-skills/*; do
-  if [ -d "$skill_dir" ]; then
-    remove_custom_skill_links "$skill_dir"
-  fi
-done
-
-if ! bun x skills experimental_install; then
-  for skill_dir in custom-skills/*; do
-    if [ -d "$skill_dir" ]; then
-      link_custom_skill "$skill_dir"
-    fi
-  done
-  exit 1
-fi
-
-while IFS= read -r skill_name; do
-  if [ ! -f ".agents/skills/$skill_name/SKILL.md" ]; then
-    echo "error: lock-managed skill '$skill_name' was not restored" >&2
-    exit 1
-  fi
-done < <(
-  bun -e 'const lock = await Bun.file("skills-lock.json").json(); console.log(Object.keys(lock.skills).join("\n"));'
-)
-
-for skill_dir in custom-skills/*; do
-  if [ -d "$skill_dir" ]; then
-    link_custom_skill "$skill_dir"
-  fi
-done
+"$REPO_DIR/scripts/verify-agents.sh"
 
 stow --adopt -t "$HOME" shell
 stow --adopt -t "$HOME" git
@@ -167,4 +107,4 @@ if [ ! -f "local/.gitconfig.local" ]; then
 fi
 
 stow --adopt --ignore='\.example$' --ignore='^\.secrets$' -t "$HOME" local
-git restore --worktree -- shell git .agents local skills-lock.json
+git restore --worktree -- shell git .agents local

@@ -3,8 +3,8 @@
   Sync the AI agent configuration (rules, skills, sub-agents, MCP) from this repository into the home directory on Windows.
 
 .DESCRIPTION
-  Links the contents of .agents and custom-skills into ~/.agents, ~/.claude, and ~/.codex.
-  It installs the skills from skills-lock.json with Bun first.
+  Links the contents of .agents and skills into ~/.agents, ~/.claude, and ~/.codex.
+  It checks that the tracked skills from skills-lock.json are present first.
   It does not install packages and does not touch the shell, git, local, or cron packages.
   Directories become junctions and files become hard links, so no administrator rights are needed.
   Hard links break when git replaces a file, so run this script again after each pull.
@@ -118,33 +118,21 @@ if (-not $NoPull) {
   }
 }
 
-function Install-LockedSkills {
-  $bun = (Get-Command bun -ErrorAction SilentlyContinue).Source
-  if (-not $bun) { $bun = Join-Path $HOME '.bun\bin\bun.exe' }
-  if (-not (Test-Path $bun)) { throw 'bun is required; run: winget install Oven-sh.Bun' }
-
-  Push-Location $Repo
-  try {
-    & $bun x skills experimental_install
-    $code = $LASTEXITCODE
-    git restore --worktree -- .agents skills-lock.json
-  } finally { Pop-Location }
-  if ($code -ne 0) { throw 'skills install from skills-lock.json failed' }
-
+function Test-LockedSkills {
   $lock = Get-Content (Join-Path $Repo 'skills-lock.json') -Raw | ConvertFrom-Json
   foreach ($name in $lock.skills.PSObject.Properties.Name) {
     if (-not (Test-Path (Join-Path $Agents "skills\$name\SKILL.md"))) {
-      throw "lock-managed skill '$name' was not restored"
+      throw "lock-managed skill '$name' is not tracked in .agents/skills"
     }
   }
 }
 
-Install-LockedSkills
+Test-LockedSkills
 
 # Lock-managed skills are real directories in .agents/skills. With core.symlinks=false,
-# the custom-skill links there are plain files, so custom skills come from custom-skills/.
+# the custom-skill links there are plain files, so custom skills come from skills/.
 $skills = @(Get-ChildItem -Directory (Join-Path $Agents 'skills')) +
-  @(Get-ChildItem -Directory (Join-Path $Repo 'custom-skills'))
+  @(Get-ChildItem -Directory (Join-Path $Repo 'skills'))
 
 $claude = Join-Path $HOME '.claude'
 $codex = Join-Path $HOME '.codex'

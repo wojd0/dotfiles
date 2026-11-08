@@ -6,8 +6,8 @@ Public-safe dotfiles managed with GNU Stow.
 
 - shell: zsh and shell startup files
 - git: git configuration
-- `.agents`: canonical rules, sub-agent definitions, shared skill references, MCP configuration, and generated lock-managed skills
-- `custom-skills`: tracked custom skill sources linked into `.agents/skills`
+- `.agents`: canonical rules, sub-agent definitions, shared skill references, MCP configuration, and the tracked skills from `skills-lock.json`
+- `skills`: tracked custom skill sources linked into `.agents/skills`
 - local: tracked machine configuration plus a template for gitignored secrets
 - cron: crontab entries and the jobs they run
 - scripts: helper scripts
@@ -21,8 +21,7 @@ Public-safe dotfiles managed with GNU Stow.
      2. APT. Bun is installed with its official install script.
      3. winget, on Windows only. Winget does not provide GNU Stow, Zsh, or pre-commit, so install them manually.
    - If the script finds no package manager, it installs Homebrew.
-   - Skills from `skills-lock.json` are restored with Bun.
-   - Custom skills from `custom-skills/` are linked into `.agents/skills`.
+   - The verification script checks the skill layout before Stow links it.
    - Claude compatibility links point `~/.claude/rules`, `~/.claude/skills`, and `~/.claude/agents` to the canonical `.agents` directories.
    - A Codex compatibility link points `~/.codex/agents` to `.agents/agents`.
    - This creates `~/.secrets` from the tracked example when it is missing.
@@ -47,7 +46,7 @@ Run `./scripts/update.sh` to get the latest changes and apply them. The script d
 On Windows, run `.\scripts\sync-agents.ps1` to install only the agent configuration. The script does not install packages and does not touch the `shell`, `git`, `local`, or `cron` packages. It does these steps:
 
 1. It runs `git pull --ff-only` when the working tree is clean. Use `-NoPull` to skip this step.
-2. It installs the skills from `skills-lock.json` with `bun x skills experimental_install`. Then it restores the tracked files in `.agents` and `skills-lock.json` with `git restore`. Bun must be on `PATH` or in `~/.bun/bin`.
+2. It checks that each skill from `skills-lock.json` is tracked in `.agents/skills`.
 3. It links `.agents` into `~/.agents`, and links each lock-managed and custom skill into `~/.agents/skills`.
 4. It links `rules`, `agents`, `skills`, and `CLAUDE.md` into `~/.claude`, and `agents` into `~/.codex`.
 
@@ -131,7 +130,7 @@ git clone --depth 1 https://github.com/wojd0/dotfiles.git "$HOME/dotfiles"
 "$HOME/dotfiles/scripts/cloud-setup.sh"
 ```
 
-`scripts/cloud-setup.sh` restores the skills from `skills-lock.json`, links
+`scripts/cloud-setup.sh` links
 `~/.agents` to the `.agents` directory of the clone, and creates the Claude
 compatibility links in `~/.claude`. It does not install Homebrew, Stow the
 `shell`, `git`, or `local` packages, or install the cron jobs. The environment
@@ -153,7 +152,11 @@ arrives only when the environment runs the script again.
 ## Agent configuration
 
 - `.agents` is the canonical runtime location for agent rules, skills, and MCP configuration.
-- Tracked custom skill sources live at repository-root `custom-skills/` and are linked into `.agents/skills`.
+- Tracked custom skill sources live at repository-root `skills/` and are linked into `.agents/skills`.
+- The skills in `skills-lock.json` are tracked as real directories in `.agents/skills`. Setup does not download them.
+- Each skill in `skills-lock.json` has a tracked link in `.claude/skills` to its `.agents/skills` directory.
+- To add or update a third-party skill, run `bun x skills add <source> -a codex -a claude-code` or `bun x skills update` at the repository root. Then commit `.agents/skills`, `.claude/skills`, and `skills-lock.json`.
+- `./scripts/verify-agents.sh` fails if a tracked skill is not in `skills-lock.json` or `skills/`, or if a link is missing.
 - Provider-specific runtime directories contain compatibility links only; they are not separate Stow packages.
 - Claude's `rules`, `skills`, and `agents` paths are linked automatically because Claude does not read `.agents` directly.
 - Sub-agent definitions live in `.agents/agents`. Each sub-agent has a canonical `<name>.md` file in the Claude Code sub-agent format. A `<name>.toml` Codex role file beside it points Codex to the same Markdown file. `~/.codex/agents` links to this directory.
