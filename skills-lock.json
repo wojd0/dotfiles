@@ -19,6 +19,13 @@
       "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
       "computedHash": "ac2c94885f34ff8492dc12aa4543182f661f32ea1722b8d6b6c2c7045af33ae3"
     },
+    "refactoring": {
+      "source": "ciembor/agent-rules-books",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "refactoring/SKILL.md",
+      "computedHash": "670b52574be2041152611ece9fd717fe5c95873926f92ca9375ccd317ee4e7c2"
+    },
     "to-spec": {
       "source": "mattpocock/skills",
       "sourceType": "github",
