@@ -7,7 +7,7 @@ This repository manages public-safe dotfiles with GNU Stow. Each top-level packa
 - `shell/`: Zsh startup files (`.zshrc`, `.zshenv`).
 - `git/`: global Git configuration, ignore rules, and commit template.
 - `.agents/`: canonical portable instructions (`AGENTS.md`), rules, generated skills, sub-agent definitions, shared skill references, and MCP configuration. Put a procedure that several skills need in `.agents/references/` and point each skill at its `~/.agents/references/` path. Put each sub-agent in `.agents/agents/` as a Claude Code `<name>.md` file and a Codex `<name>.toml` role file that points to the Markdown file.
-- `custom-skills/`: tracked custom skill sources linked into `.agents/skills`.
+- `skills/`: tracked custom skill sources linked into `.agents/skills`. The skills in `skills-lock.json` are tracked as real directories in `.agents/skills` and linked from `.claude/skills`.
 - `local/`: tracked, public-safe machine configuration plus gitignored secrets; only secrets use a tracked `.example` template.
 - `cron/`: crontab entries and the jobs they run; `scripts/cron.sh` installs them into the user crontab. Jobs run with cron's `PATH=/usr/bin:/bin`, so `env bash` resolves to Bash 3.2 on macOS.
 - `scripts/`: install, update, Stow, cron, GPG signing, cloud-environment, Docker test, Windows agent sync (`sync-agents.ps1`), and agent-verification utilities. `setup.sh` at the root runs install, Stow, and cron setup.

@@ -3,22 +3,6 @@ set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
-run_skills_cli() {
-  if command -v bun >/dev/null 2>&1; then
-    bun x skills "$@"
-  else
-    npx -y skills "$@"
-  fi
-}
-
-restore_lock_managed_skills() {
-  if ! (cd "$REPO_DIR" && GIT_TERMINAL_PROMPT=0 run_skills_cli experimental_install </dev/null); then
-    echo "warning: lock-managed skills were not restored" >&2
-  fi
-
-  git -C "$REPO_DIR" checkout -- .agents/skills
-}
-
 link_path() {
   local source_path="$1"
   local link_path="$2"
@@ -40,8 +24,6 @@ link_path() {
     fi
   done
 }
-
-restore_lock_managed_skills
 
 mkdir -p "$HOME/.claude"
 link_path "$REPO_DIR/.agents" "$HOME/.agents"
