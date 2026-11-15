@@ -13,7 +13,7 @@ $runDir = Join-Path $RunRoot (Get-Date -Format 'yyyyMMdd-HHmmss-fff')
 New-Item -ItemType Directory -Force $runDir | Out-Null
 
 $brief = Get-Content -Raw (Join-Path $skillDir 'references\worker-brief.md')
-$brief = $brief.Replace('{{TASK}}', $Task).Replace('{{SUCCESS}}', $Success).Replace('{{RUN_DIR}}', $runDir)
+$brief = $brief.Replace('{{TASK}}', $Task).Replace('{{SUCCESS}}', $Success).Replace('{{OS}}', 'Windows').Replace('{{SCREENSHOT}}', (Join-Path $runDir 'final.png'))
 Set-Content -Encoding utf8 -Path (Join-Path $runDir 'TASK.md') -Value $brief
 
 Copy-Item (Join-Path $skillDir 'references\result-schema.json') (Join-Path $runDir 'result-schema.json')
