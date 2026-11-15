@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "properties": {
+    "status": { "type": "string", "enum": ["success", "failed", "blocked"] },
+    "result": { "type": "string" },
+    "steps": { "type": "array", "items": { "type": "string" } },
+    "problems": { "type": "string" },
+    "final_screenshot": { "type": "string" }
+  },
+  "required": ["status", "result", "steps"]
+}
