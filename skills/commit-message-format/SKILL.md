@@ -16,6 +16,16 @@ prefixes, scopes, ticket IDs, capitalization, and punctuation. Prefer recent
 entries when patterns conflict. Use only formats that the repository history
 supports.
 
-If no pattern exists, use a concise one-line imperative subject.
+If no pattern exists, follow the conventional commit rules:
+Each commit message consists of a header, a body and a footer. The header has a special format that includes a type, a scope and a subject:
+build: Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)
+ci: Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)
+docs: Documentation only changes
+feat: A new feature
+fix: A bug fix
+perf: A code change that improves performance
+refactor: A code change that neither fixes a bug nor adds a feature
+style: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+test: Adding missing tests or correcting existing tests
 
-Write a one-line subject only. Do not add a body.
+Use a concise one-line imperative subject. Write a one-line subject only. Do not add a body.
