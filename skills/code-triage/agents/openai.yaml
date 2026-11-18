@@ -1,0 +1,3 @@
+interface:
+  display_name: "Code Triage"
+  short_description: "Triage a diff on standards, spec, and bugs"

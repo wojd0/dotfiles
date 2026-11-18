@@ -16,11 +16,11 @@ Pin a checkout following `~/.agents/references/temporary-codebases.md`, with the
 
 Done when `<remote>/<baseRefName>` and `<headRefOid>` both resolve in the checkout.
 
-## Step 2: Running the code-review skill
+## Step 2: Running the code-triage skill
 
-Follow the `code-review` at `~/.agents/skills/code-review/SKILL.md` skill through its final report, passing it the pull request link or branch the user gave. Run it, and its sub-agents, in the checkout from Step 1.
+Follow the `code-triage` skill at `~/.agents/skills/code-triage/SKILL.md` through its final report. Give it the pull request link, and `<remote>/<baseRefName>` as the fixed point. Run it, and its sub-agents, in the checkout from Step 1.
 
-Done when both axes have reported, or the Spec axis reports that no spec is available.
+Done when the Standards, Spec, and Bugs axes and the checks have reported, and each finding has a verdict.
 
 ## Step 3: Drafting the comments
 
@@ -29,9 +29,9 @@ Read what the pull request already holds:
 - The user's pending review, from `gh api repos/<owner>/<repo>/pulls/<number>/reviews --paginate --jq '.[] | select(.state == "PENDING")'`, and its comments at `repos/<owner>/<repo>/pulls/<number>/reviews/<id>/comments`. GitHub keeps one pending review per user and pull request, so new comments join this one.
 - The published review comments at `repos/<owner>/<repo>/pulls/<number>/comments`.
 
-Check each finding against the head's code. Write a comment only for a finding that meets all of these conditions:
+Write a comment only for a finding that meets all of these conditions:
 
-- The head's code bears it out.
+- The `code-triage` report shows it as confirmed.
 - It is a defect or a worthwhile improvement in the diff.
 - No comment in the pending review and no published comment already raises it.
 - You are fully confident that it is correct and worth the author's time.
