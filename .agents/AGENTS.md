@@ -4,6 +4,10 @@
 
 Write all prose in ASD-STE100 Simplified Technical English: docs, skills, Markdown files of any kind, reports, and any other in-file or in-chat prose.
 
+# Skills
+
+Write each skill so that all agents can use it. Write general instructions that do not name an agent, a tool, a setting, or a file of one agent. Put the shared skill files in `~/.agents/skills` and `.agents/skills`.
+
 # Agent attribution rules
 
 Branches, commits, tickets, filenames, GitHub comments, descriptions and any other artifacts and results of your should be named, authored or have any creator-related information pointing to the user as the creator. Do not use AI agent name, attribution, mention, tag, link or trademark anywhere.
