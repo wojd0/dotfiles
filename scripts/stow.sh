@@ -101,6 +101,8 @@ prepare_secrets_file() {
 
 prepare_secrets_file
 
+"$REPO_DIR/scripts/claude-settings.sh"
+
 if [ ! -f "local/.gitconfig.local" ]; then
   cp "local/.gitconfig.local.example" "local/.gitconfig.local"
   echo "created local/.gitconfig.local (set your GPG signing key)"

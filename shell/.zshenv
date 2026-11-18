@@ -10,5 +10,3 @@ if command -v rbenv >/dev/null 2>&1; then
   export PATH="$HOME/.rbenv/bin:$PATH"
   eval "$(rbenv init - zsh)"
 fi
-
-export CLAUDE_CODE_EXPERIMENTAL_CODE_MODE=1
