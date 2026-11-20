@@ -1,31 +1,17 @@
 ---
 name: cloudsmith-backfill
-description: Backfill Cloudsmith with the npm package versions that a HylandSoftware repository already published to GitHub Packages. Use when the user wants previous or old releases available on Cloudsmith, or wants to copy or migrate published versions from GitHub Packages to Cloudsmith.
+description: Backfill Cloudsmith with the npm package versions that a HylandSoftware repository already published to GitHub Packages.
+disable-model-invocation: true
 ---
 
 # Cloudsmith backfill
 
 The backfill copies each published tarball from GitHub Packages to Cloudsmith with a one-off GitHub Actions workflow. The workflow does not build anything, so each version keeps its sha512 integrity. The template is [`assets/cloudsmith-backfill.yml`](assets/cloudsmith-backfill.yml). Its comments explain each step.
 
-## Reference implementation
-
-The first backfill was for `@hylandsoftware/satori-icons` (46 versions, ticket DS-2770). Its branch is the reference. Keep that branch, and compare with it when a step gives an unexpected result.
-
-- Branch: [`build/DS-2770-cloudsmith-backfill`](https://github.com/HylandSoftware/satori-icons/tree/build/DS-2770-cloudsmith-backfill) in `HylandSoftware/satori-icons`.
-- Workflow: [`.github/workflows/cloudsmith-backfill.yml`](https://github.com/HylandSoftware/satori-icons/blob/build/DS-2770-cloudsmith-backfill/.github/workflows/cloudsmith-backfill.yml). It uses the local `.github/actions/cloudsmith-auth` action of that repository. The template has the same Cloudsmith auth inline.
-- Commits: [branch history](https://github.com/HylandSoftware/satori-icons/commits/build/DS-2770-cloudsmith-backfill). The last two commits show step 4: add the temporary `push` trigger, then remove it.
-- Runs: the [registration run](https://github.com/HylandSoftware/satori-icons/actions/runs/39422703879) (skipped), the [dry run](https://github.com/HylandSoftware/satori-icons/actions/runs/39422830666), and the [real run](https://github.com/HylandSoftware/satori-icons/actions/runs/39423326495). Use their logs to see the expected log lines of steps 5 and 6. GitHub deletes run logs after the retention period of the repository.
-
-To read the reference workflow, run:
-
-```bash
-gh api "repos/HylandSoftware/satori-icons/contents/.github/workflows/cloudsmith-backfill.yml?ref=build/DS-2770-cloudsmith-backfill" --jq .content | base64 -d
-```
-
 ## Rules
 
 - Publish only from GitHub Actions through OIDC. A personal Cloudsmith API key cannot publish to `cic-unified-shared-libs`. Only the `cloudsmith-cic-unified-shared-libs-service-write` team has write access, and it holds only OIDC service accounts.
-- Get an explicit "yes" from the user before each of these actions: commit, push, start a workflow run, and delete a branch.
+- Get an explicit "yes" from the user before each commit, push, workflow run, and branch deletion.
 - Start each real run only after a dry run of the same package passed.
 
 ## Steps
@@ -64,20 +50,20 @@ The step is complete when the user approved the backfill of that number of versi
 2. Copy the template to `.github/workflows/cloudsmith-backfill.yml`.
 3. Replace `__PACKAGE__`, `__CLOUDSMITH_REGISTRY__`, and `__BRANCH__`.
 4. If the repository pins `actions/setup-node` to a different SHA, or uses a different Node.js major version in `.nvmrc`, use the values of the repository.
-5. Show the file to the user and wait for approval.
+5. Show the file to the user and wait for approval to commit, push, and register the workflow.
 
 ### 4. Register the workflow
 
 GitHub starts a `workflow_dispatch` workflow from a branch only after the workflow ran once. The temporary `push` trigger gives that run, and the job `if` skips the job in it.
 
 1. Commit with the `commit-message-format` skill and push.
-2. Run `gh run list --branch <branch> --workflow cloudsmith-backfill.yml --limit 1 --json event,conclusion`. The step is complete when the result shows `"event":"push"` and `"conclusion":"skipped"`.
+2. Run `gh run list --branch <branch> --workflow cloudsmith-backfill.yml --limit 1 --json event,conclusion`. The registration run is complete when the result shows `"event":"push"` and `"conclusion":"skipped"`.
 3. Remove the `push` block and its comment from `on:`. Keep the job `if`.
-4. Commit and push.
+4. Ask the user for a "yes", then commit and push.
 
 ### 5. Do the dry run
 
-1. Start it: `gh workflow run cloudsmith-backfill.yml --ref <branch> -f dry-run=true -f package=<package>`.
+1. Ask the user for a "yes", then start the dry run: `gh workflow run cloudsmith-backfill.yml --ref <branch> -f dry-run=true -f package=<package>`.
 2. Wait for it: `gh run watch <run-id> --exit-status`.
 3. Save the log with `gh run view <run-id> --log > <scratchpad>/dry-run.log`, then count these lines:
    - `Z copy    ` (the planned copies)
@@ -90,10 +76,9 @@ The dry run passed when the copies plus the skips equal the version count from s
 
 ### 6. Do the real run
 
-1. Get a "yes" from the user.
-2. Start it: `gh workflow run cloudsmith-backfill.yml --ref <branch> -f dry-run=false -f package=<package>`.
-3. Wait for it and save its log the same way as in step 5.
-4. Count the lines `Z + <package>@`. The real run passed when that count equals the planned copies and the step "Remove the temporary backfill dist-tag" shows `-backfill:`.
+1. Ask the user for a "yes", then start the real run: `gh workflow run cloudsmith-backfill.yml --ref <branch> -f dry-run=false -f package=<package>`.
+2. Wait for it and save its log the same way as in step 5.
+3. Count the lines `Z + <package>@`. The real run passed when that count equals the planned copies and the step "Remove the temporary backfill dist-tag" shows `-backfill:`.
 
 If the first publish fails with 401 or 403, the repository is not on the Cloudsmith write allowlist. Stop and tell the user (see step 1).
 
@@ -105,3 +90,18 @@ Offer the user these actions, then do only the ones that they approve:
 
 1. Do one more dry run after a few minutes. It shows each version as `skip` if Cloudsmith has all of them.
 2. Delete the branch. The workflow is not on the default branch, so this removes the workflow completely. Keep the reference branch in `HylandSoftware/satori-icons`.
+
+## Reference implementation
+
+The first backfill was for `@hylandsoftware/satori-icons` (46 versions, ticket DS-2770). Its branch is the reference. Keep that branch, and compare with it when a step gives an unexpected result.
+
+- Branch: [`build/DS-2770-cloudsmith-backfill`](https://github.com/HylandSoftware/satori-icons/tree/build/DS-2770-cloudsmith-backfill) in `HylandSoftware/satori-icons`.
+- Workflow: [`.github/workflows/cloudsmith-backfill.yml`](https://github.com/HylandSoftware/satori-icons/blob/build/DS-2770-cloudsmith-backfill/.github/workflows/cloudsmith-backfill.yml). It uses the local `.github/actions/cloudsmith-auth` action of that repository. The template has the same Cloudsmith auth inline.
+- Commits: [branch history](https://github.com/HylandSoftware/satori-icons/commits/build/DS-2770-cloudsmith-backfill). The last two commits show step 4: add the temporary `push` trigger, then remove it.
+- Runs: the [registration run](https://github.com/HylandSoftware/satori-icons/actions/runs/39422703879) (skipped), the [dry run](https://github.com/HylandSoftware/satori-icons/actions/runs/39422830666), and the [real run](https://github.com/HylandSoftware/satori-icons/actions/runs/39423326495). Use their logs to see the expected log lines of steps 5 and 6. GitHub deletes run logs after the retention period of the repository.
+
+To read the reference workflow, run:
+
+```bash
+gh api "repos/HylandSoftware/satori-icons/contents/.github/workflows/cloudsmith-backfill.yml?ref=build/DS-2770-cloudsmith-backfill" --jq .content | base64 -d
+```

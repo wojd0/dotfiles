@@ -1,13 +1,14 @@
 ---
 name: gemini-cuse-setup
-description: Install and verify the stack for the `gemini-cuse` skill on Windows (Antigravity CLI `agy`, CUA Driver, and the `cua-driver` MCP server in `agy`), then run a Calculator 2+2 smoke test. Use when `gemini-cuse` preconditions fail, or when the user asks to set up or test Gemini computer use.
+description: Install and verify the stack for the `gemini-cuse` skill (Antigravity CLI `agy`, CUA Driver, and the `cua-driver` MCP server in `agy`), then run a Calculator 2+2 smoke test.
+disable-model-invocation: true
 ---
 
 # Gemini computer use setup
 
 Do the steps in sequence. Each step starts with a check. If the check passes, go to the next step. The setup is complete when all checks in the final report pass.
 
-Use the full path for CUA Driver in all commands: `$c = "$env:LOCALAPPDATA\Programs\Cua\cua-driver\bin\cua-driver.exe"`. A shell that started before the install does not have it on PATH.
+Set `$c = "$env:LOCALAPPDATA\Programs\Cua\cua-driver\bin\cua-driver.exe"` at the start of each PowerShell command that calls CUA Driver. Each shell tool call starts a new process, and a shell that started before the install does not have `cua-driver` on PATH.
 
 ## 1. Antigravity CLI
 
@@ -23,7 +24,7 @@ Use the full path for CUA Driver in all commands: `$c = "$env:LOCALAPPDATA\Progr
 
 ## 2. CUA Driver
 
-1. Run `Test-Path $c`.
+1. Run `$c = "$env:LOCALAPPDATA\Programs\Cua\cua-driver\bin\cua-driver.exe"; Test-Path $c`.
 2. If the file is missing, download the installer to a new temporary folder, and then run it with two switches:
 
    ```powershell
@@ -35,13 +36,14 @@ Use the full path for CUA Driver in all commands: `$c = "$env:LOCALAPPDATA\Progr
    - `-NoConnect` keeps the installer from adding CUA Driver to Claude Code, Codex, and Cursor. Only `agy` needs it.
    - `-NoAutoStart` skips the logon task, which needs a UAC prompt. The MCP server starts its own runtime when `agy` calls it.
 
-3. Run `& $c doctor`. The line `interactive session` must show `[ok  ]`. If it fails, stop. Tell the user to run the agent from the desktop session, not over SSH or as a service.
+3. Run `$c = "$env:LOCALAPPDATA\Programs\Cua\cua-driver\bin\cua-driver.exe"; & $c doctor`. The line `interactive session` must show `[ok  ]`. If it fails, stop. Tell the user to run the agent from the desktop session, not over SSH or as a service.
 
    Ignore the installer and `cua-driver test` messages about Accessibility and Screen Recording. Those are macOS permissions, and `cua-driver permissions` applies to macOS only.
 
 4. Take a test screenshot. Make sure that the file exists:
 
    ```powershell
+   $c = "$env:LOCALAPPDATA\Programs\Cua\cua-driver\bin\cua-driver.exe"
    $o = "$env:TEMP\cua-setup-check.png"
    '{"screenshot_out_file":"' + ($o -replace '\\','\\') + '"}' | & $c call get_desktop_state
    Test-Path $o
@@ -53,11 +55,12 @@ Use the full path for CUA Driver in all commands: `$c = "$env:LOCALAPPDATA\Progr
 2. If `cua-driver` is missing, add it:
 
    ```powershell
+   $c = "$env:LOCALAPPDATA\Programs\Cua\cua-driver\bin\cua-driver.exe"
    agy mcp add cua-driver "$($c -replace '\\','/')" mcp
    ```
 
 3. If `cua-driver` shows `disabled`, run `agy mcp enable cua-driver`.
-4. Make sure that `%USERPROFILE%\.gemini\antigravity-cli\skills\cua-driver` exists. This skill pack teaches the worker the CUA Driver tools. If it is missing, run `& $c mcp-config --client antigravity`. That command links the pack into `agy` only. Do not use `cua-driver skills install`, because it links the pack into all agents that it finds.
+4. Make sure that `%USERPROFILE%\.gemini\antigravity-cli\skills\cua-driver` exists. This skill pack teaches the worker the CUA Driver tools. If it is missing, run `$c = "$env:LOCALAPPDATA\Programs\Cua\cua-driver\bin\cua-driver.exe"; & $c mcp-config --client antigravity`. That command links the pack into `agy` only. Do not use `cua-driver skills install`, because it links the pack into all agents that it finds.
 
 ## 4. Smoke test
 

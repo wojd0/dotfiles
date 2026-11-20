@@ -70,7 +70,7 @@ alwaysApply: true
 - Don't unnecessarily spread arrays when assigning to signals
 - Use spies for better control over test behavior — avoid tests interfering with each other
 - Remove `console.log` / `console.warn` from tests — rely on assertions instead
-- `jest.clearAllMocks()` in `afterEach` is usually sufficient — don't over-setup test cleanup (no need for `TestBed.resetTestingModule()`)
+- `jest.clearAllMocks()` in `afterEach` is usually sufficient — don't over-setup test cleanup
 - Configure `TestBed` inside `beforeEach`, not outside it
 - Validate changes on components with custom behavior — don't assume Material defaults apply
 
@@ -90,7 +90,6 @@ alwaysApply: true
 
 ## i18n
 
-- Only modify `en.json` — other languages are handled by a separate translation process
 - Always add translation keys when introducing user-facing strings
 
 ## Package & Rebasing

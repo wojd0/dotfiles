@@ -1,6 +1,6 @@
 ---
 name: code-triage
-description: "Triage a code change since a fixed point (commit, branch, tag, merge-base, or pull request) on three axes in parallel sub-agents: Standards, Spec from the sources that the change links to, and Bugs. Verifies each finding before the report. Use when the user asks to triage or review a branch, a pull request, or work in progress."
+description: "Three-axis code triage (Standards, Spec, Bugs) with adversarial verification against a base ref. Use when the user asks to triage or review a diff, branch, pull request, or work in progress."
 ---
 
 # Code triage
@@ -28,9 +28,11 @@ Give each sub-agent the **triage input**:
 
 ### 1. Pin the fixed point
 
-The fixed point is what the user gives: a commit, a branch, a tag, `main`, `HEAD~5`, or the base of a pull request. If the user gives none, ask for it.
+The fixed point is what the user gives: a commit, a branch, a tag, `main`, `HEAD~5`, or a pull request link or number. If the user gives none, ask for it.
 
-Run `git rev-parse <fixed-point>` and `git diff --shortstat <fixed-point>...HEAD`. Stop here if the ref does not resolve or the diff is empty.
+If the user gives a pull request link or number whose head commit is not the local `HEAD`, read `url`, `baseRefName`, and `headRefOid` with `gh pr view <pr> --json url,baseRefName,headRefOid`. Pin a checkout as in `~/.agents/references/temporary-codebases.md` with the commit `<headRefOid>`, the refs `<baseRefName>` and `pull/<number>/head`, and the name `triage/<owner>/<repo>/PR-<number>`. Set `<fixed-point>` to `<remote>/<baseRefName>` in that checkout.
+
+Run `git rev-parse <fixed-point>` and `git diff --shortstat <fixed-point>...HEAD` in the checkout. Stop here if the ref does not resolve or the diff is empty.
 
 Set the **consumer root**, the folder that holds the user's local repositories. It is the session's working directory when that folder is not inside the repository. Else it is the parent folder of the repository's main checkout, the first entry of `git worktree list`.
 

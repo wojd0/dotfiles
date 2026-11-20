@@ -3,98 +3,43 @@ name: web-navigation
 description: General guidelines for agentic navigation through complex web applications. Use when an agent interacts with, tests, or automates a web app through a browser, regardless of the browser-automation tooling in use.
 ---
 
-# Web Application Navigation
+# Web application navigation
 
-Guidelines for driving complex web applications through any browser-automation harness. These rules describe *what* to do; map each capability to whatever tools your harness exposes.
+Use these rules when you drive a web application through a browser tool.
 
-## Choose the Browser Capability
+## Browser selection
 
-Use the best available capability for the task:
+1. Use an integrated browser or preview tool for routine navigation and DOM inspection.
+2. Use a connected Chrome debugging session when the task needs the user's signed-in session, extensions, or live tab state.
+3. Use Playwright automation for repeatable test flows or when integrated tools lack reliable selectors and waits.
 
-- Use an agent-native browser or preview for routine navigation and structural inspection when it supports the required interactions.
-- Use a running Chrome session through a debugging client when the task depends on the user's authenticated session, extensions, or exact live state.
-- Use Playwright-compatible automation for deterministic, repeatable flows or when the integrated options lack reliable selectors and waits.
-
-Confirm the chosen capability is available before relying on it. Preserve an existing authenticated session and avoid switching tools unless the current one cannot complete the task reliably.
-
-## Interaction Loop
-
-For every interaction:
-
-1. Inspect the current URL, page identity, target element, relevant state, dialogs, and blocking overlays.
-2. Define the visible result expected from the next action.
-3. Perform one click, fill, submission, or navigation.
-4. Wait for the expected result and for its controls to become interactive.
-5. Verify the resulting state before continuing.
-
-Never chain actions from a stale page snapshot. Re-inspect after navigation, asynchronous updates, or any action that can replace or reorder content.
-
-## Waiting for Web Applications
-
-Web applications may use polling, streaming requests, or WebSockets, so global network-idle is not a reliable readiness signal.
-
-- Prefer an explicit UI condition, such as an element appearing, a status changing, a dialog closing, or a control becoming enabled.
-- If a relevant request is identifiable, combine its completion with the expected UI condition.
-- Wait while a spinner, skeleton, or blocking overlay covers the target.
-- Avoid fixed sleeps. If a condition times out, inspect the current state before deciding whether to retry.
-
-
+Keep one browser tool and session for the task unless that tool fails to complete the step.
 
 ## Selectors
 
 Use stable, scoped selectors in this order:
 
-1. Role plus accessible name, or an associated form label.
-2. Stable test hooks such as `data-testid`.
-3. Visible text scoped to the relevant region.
+1. Role and accessible name, or the associated form label.
+2. Stable test attributes such as `data-testid`.
+3. Visible text scoped to the container element.
 4. Stable CSS attributes or structure.
-5. XPath only when no resilient alternative exists.
+5. XPath only when no other selector works.
 
-Avoid generated classes or IDs, positional selectors, and unscoped text matches.
+Do not use generated class names, generated IDs, positional selectors, or unscoped text matches.
 
-## Structural and Visual Inspection
+## Inspection and waiting
 
-Use the DOM or accessibility tree for text, structure, state, and element presence. Use screenshots only when layout, rendering, canvas content, or another genuinely visual result must be verified.
+- Read the DOM or accessibility tree for text, structure, state, and element presence. Take a screenshot only to verify layout, visual rendering, or `<canvas>` content.
+- Re-inspect the page after each navigation, asynchronous update, or action that changes the DOM. Do not chain actions from a stale snapshot.
+- Wait for an explicit UI state (an element appears, a status changes, a dialog closes, or a control becomes enabled) and wait while a spinner, skeleton, or overlay covers the target. Do not rely on global network-idle or fixed sleeps.
 
-After using a screenshot, record a concise note containing the page location, relevant visible state, and conclusion. At natural checkpoints, retain only the completed steps, current state, known issue, and next expected condition. Reduce trial-and-error history to the result that matters for the remaining work.
+## Guardrails and recovery
 
-## User Involvement
+- **Authentication**: Never handle passwords, tokens, or MFA codes, and never sign in for the user. When a page needs authentication, stop and ask the user to sign in. When they reply, inspect the page again before you act.
+- **Mutation safety**: Change data on a site only when the user asks you to change it. Ask for confirmation before any destructive or high-impact action that the user did not explicitly approve.
+- **Recovery**: If an action gives an unexpected result, inspect the URL, DOM state, console errors, and failed network requests (without exposing secrets) to see whether the action already took effect. Retry only when the action is idempotent or did not take effect.
+- **Stop condition**: Ask the user and wait idle when blocked by authentication, missing permission, an ambiguous choice, an unapproved high-impact action, or two failed attempts at the same step.
 
-Continue autonomously when the current state can be discovered safely. Ask the user only when blocked by:
+## Report
 
-- Authentication.
-- A materially ambiguous choice.
-- Missing permission.
-- An irreversible or high-impact action that was not clearly authorized.
-- Two similar failed attempts after applying the recovery process.
-
-After asking, wait idle. Do not poll, set a timeout, or guess while waiting for the user's response.
-
-## Authentication
-
-Never handle credentials, authentication tokens, or MFA codes, and never attempt to log in on the user's behalf. When authentication is required, stop and ask the user to complete the flow in the browser. Resume only after they explicitly prompt you, then inspect the page again before acting.
-
-## Mutation Safety
-
-Do not ever modify any information on the site unless explictly instructed to do so. Confirm destructive or high-impact actions immediately before execution when they were not already explicitly authorized.
-
-## Error Recovery
-
-When an action produces an unexpected result:
-
-1. Inspect the URL, page identity, DOM state, visible errors, dialogs, and target state. Determine whether the action already took effect.
-2. When supported, inspect console errors and relevant failed network requests without exposing credentials, tokens, or sensitive payloads.
-3. Classify the problem as transient loading, validation, authentication or permission, application failure, or stale targeting.
-4. Retry only after re-inspection proves the operation is safe and either idempotent or did not take effect.
-5. After two similar failures, stop and ask the user for help with a concise summary of the observed state and evidence.
-
-
-
-## Completion
-
-Finish only when the expected end state is verified or a blocker is established. Report:
-
-- The flow exercised.
-- The verified final state.
-- Any errors or incomplete steps.
-- Any assumptions or outcomes that could not be verified.
+Finish when you verify the expected end state or hit a blocker. Report the flow that you ran, the verified final state, any errors or unverified outcomes, and any blocker.

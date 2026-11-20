@@ -1,14 +1,6 @@
 # Ticket style
 
-Use these rules with the latest 20-ticket review and the target bucket. The user's current instructions take precedence.
-
-## Evidence
-
-This guide is based on the latest 100 tickets created by the current user, read on 20 October 2026. The query was `creator = currentUser() ORDER BY created DESC`. The sample covers 6 November 2025 through 19 October 2026.
-
-Three subagents read groups of 34, 34, and 32 tickets. The sample contains 41 Tasks, 37 Sub-tasks, 11 Bugs, 7 Stories, and 4 tickets of other types. Fifteen descriptions are empty. Only two tickets have a populated Acceptance Criteria field. The same empty Readiness template appears in 98 tickets.
-
-These are current ticket values. Creator identity does not prove who wrote each field or what it contained at creation. Some release and security text comes from templates or imports. One imported security description is truncated in the source. Exclude these sources from personal writing rules. No private ticket records or account values are stored in this guide.
+Use these rules with the latest 20-ticket review and the target bucket. The user's current instructions take precedence. Exclude empty Readiness templates, imported release or security descriptions, and automation text from personal writing rules.
 
 ## Summary
 
