@@ -1,10 +1,10 @@
-# Desktop app report
+# Widget report
 
 Use this report in place of the Markdown report of Step 5. The report is one inline widget. It shows the comments that Step 4 posted and nothing more, each with its full text, a direct link, and a **Mention** button.
 
-1. Before the first widget of the session, call `mcp__visualize__read_me` with `modules: ["interactive"]`.
+1. Before the first widget of the session, call the visualize `read_me` tool with `modules: ["interactive"]` when present.
 2. Fill the template below. Add one card for each posted comment, in the order of Step 4.
-3. Call `mcp__visualize__show_widget` with the filled template.
+3. Call the `show_widget` tool with the filled template.
 4. Write no text after the widget. The widget is the full report.
 
 Fill the placeholders with these rules:

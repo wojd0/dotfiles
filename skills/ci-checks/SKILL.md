@@ -5,51 +5,37 @@ description: Investigate and diagnose failing CI checks, GitHub Actions workflow
 
 # Investigate failing CI checks
 
-## Workflow
+## Collect run metadata
 
-The user may provide a PR number, a GitHub PR link (e.g. `https://github.com/owner/repo/pull/16022`), a branch name, or a workflow run URL. Extract the relevant identifiers and infer the repo from the current git remote when not provided.
+Extract the pull request number, branch name, or workflow run ID from the user request. If the user gives no repository, read it from the local git remote. The pull request can be for a branch other than the checked-out branch.
 
-Rename the agent session to `[pr-number or branch] [repository] failing CI` — for example `#2056 owner/repository failing CI`.
+1. **Fetch CI status**: For a pull request, run `gh pr view <number> --repo <owner/repo>` and `gh pr checks <number> --repo <owner/repo>` to list the failing checks. For a branch or a workflow run, run `gh run list --branch <branch> --limit 5`.
+2. **Read run logs**: For each failing check, find the latest attempt number with `gh run view <run-id> --json attemptNumber --jq '.attemptNumber'`. Then read the failed log of that attempt: `gh run view <run-id> --attempt <N> --log-failed`. If the log download fails, read the annotations and logs with `gh api`. Always inspect the latest attempt, and check whether earlier attempts failed in the same way.
+3. **Read pull request changes**: For a pull request, run `gh pr diff <number> --repo <owner/repo>` and `gh pr view <number> --json files`. Skip this step for a run without a pull request.
+4. **Pin a checkout**: When the analysis needs local test or source files, pin a checkout as in `~/.agents/references/temporary-codebases.md`:
+   - For a pull request, read `headRefOid` and `baseRefName` from `gh pr view <number> --repo <owner/repo> --json headRefOid,baseRefName`. Use the commit `headRefOid`, the refs `<baseRefName>` and `pull/<number>/head`, and the name `ci/<owner>/<repo>/PR-<number>`. Run `git rev-list --count HEAD..<remote>/<baseRefName>` in the checkout to see how far the pull request is behind its base. More than 200 commits is an integration risk.
+   - For a run without a pull request, read `headSha` and `headBranch` from `gh run view <run-id> --json headSha,headBranch`. Use the commit `headSha`, the ref `headBranch`, and the name `ci/<owner>/<repo>/run-<run-id>`.
 
-**Important:** The PR may not be for the branch you are currently on.
+Done when each failing check has its latest attempt log and the pull request diff or commit is known.
 
-## Run metadata collection and preparation
+## Investigate the failure
 
-1. **Fetch CI status** – Use `gh pr view <number> --repo <owner/repo>` and `gh pr checks <number> --repo <owner/repo>` to list failing checks. For branch/run investigations use `gh run list --branch <branch> --limit 5`.
-2. **Get run details** – For each failing check, always fetch the latest attempt number first with `gh run view <run-id> --json attemptNumber --jq '.attemptNumber'`, then pass it explicitly: `gh run view <run-id> --attempt <N> --log-failed`. Fall back to `gh api` to fetch annotations/logs when log download fails. Never inspect attempt 1 if a newer attempt exists.
-3. **Get PR changes** – Run `gh pr diff <number> --repo <owner/repo>` and `gh pr view <number> --json files` to see which files were modified. Skip this step for non-PR runs.
-4. **Pin a checkout** – When the analysis needs local test or source files, pin a checkout following `~/.agents/references/temporary-codebases.md`:
-   - For a PR, use the commit `headRefOid` and the refs `<baseRefName>` and `pull/<number>/head` from `gh pr view <number> --repo <owner/repo> --json headRefOid,baseRefName`, and the name `ci/<owner>/<repo>/PR-<number>`. Then `git rev-list --count HEAD..<remote>/<baseRefName>` in the checkout shows how far the PR is behind its base; over 200 commits is a potential integration risk.
-   - For a run without a PR, use the commit `headSha` and the ref `headBranch` from `gh run view <run-id> --json headSha,headBranch`, and the name `ci/<owner>/<repo>/run-<run-id>`.
+Find the root cause of each failing check from its log and the changed files:
 
-### Notes
-- Always check all run attempts.
-- Aggregation jobs (e.g. Final Results) and external services (e.g. SonarCloud) often fail as cascading or transient issues.
+- Compare the failure with the pull request diff first.
+- Aggregation jobs (such as Final Results) and external services (such as SonarCloud) often fail as a result of another failed job or a temporary service error.
+- If the failure does not come from the changed files in the pull request, check the commits merged to the base branch and to the target branch since the last workflow run that passed on the first attempt. If that range is large, use sub-agents to inspect the diffs.
+- If the log shows an authentication, permission, or environment error, check whether a token, secret, permission, or repository setting expired or changed on the remote host.
 
-## Investigation
-Look for the cause of the problem based on your assumptions and most probable causes of a failure. 
-Below is a list of most common places to find clues, always check all of those no matter the outcome of your own investigation:
+Done when each failing check has an identified root cause and an allowed reason.
 
-### Check recent code activity on the codebase
-Check for changes merged recently to repository's master branch and the branch on which the failing tests were run on if it's not the repository's master.
-Range of this search should always be from the last green workflow run that passed on first try.
-No type of changes is more important than others - investigate a diff of each change closely.
-If the scope of those changes is big, utilize subagents for a close assessment.
+## Fix failures
 
-### Check non-code changes that could be made on the remote VCS host 
-Configs that have expiration dates or can be changed independently from code and impact CI behavior and outcomes (ex. tokens, secrets, permissions, organization settings etc.) should be checked as well.
+When the user asks to fix a failing check, apply the code changes only in a local checkout pinned as in step 4. Give the checkout path when it is a temporary codebase. Do not commit or push. Let the user decide when to commit.
 
-## Fixing failures
+## Report the summary
 
-When the user asks to fix a failing check, only apply the code changes locally, in a checkout pinned as in step 4, and give its path when it is a temporary codebase. Do **not** commit or push — let the user decide when to commit.
-
-## Summarize
-Always end with the structured summary below.
-
-
-## Summary template
-
-Use the card-style format below for each failing test/check. Pick one reason per failure from the allowed list.
+End your response with the summary format below. Pick one reason for each failure from the allowed reasons.
 
 **Allowed reasons:**
 
@@ -61,24 +47,24 @@ Use the card-style format below for each failing test/check. Pick one reason per
 - Visual regression
 - Missing translations
 
-```
+```markdown
 ## Failing Checks Summary
 
 ---
 ### ❌ <test ID or check name>
 - **Reason:** <one of the allowed reasons>
-- **Description:** <brief description of the failure, what is the root cause and how to fix it>
+- **Description:** <brief description of the failure, the root cause, and the fix>
 - **File:** `<relative path to the test file>`
 - **Run:** <full GitHub job URL>
 ---
 (repeat for each failing check)
 
 ### Verdict
-<one of the following>
+<one of the verdicts below>
 ```
 
-**Verdict** must be exactly one of:
+**Verdict** must be one of:
 
-- 🔁 Re-run – when all failures are unrelated/flaky/cascading
-- 🔧 Needs fixing – when at least one failure is caused by code changes
-- 🔍 Investigate infrastructure – when failures point to infrastructure/environment or non-code-change-based problems
+- 🔁 Re-run – when all failures are unrelated, flaky, or cascading
+- 🔧 Needs fixing – when at least one failure comes from code changes
+- 🔍 Investigate infrastructure – when failures point to infrastructure, environment, or configuration problems

@@ -1,14 +1,14 @@
 ---
 name: review-pr
-description: Reviews a GitHub pull request with the code-review skill and adds the findings as brief line, file, and review-body comments to the user's pending (draft) review, leaving it unpublished.
+description: Reviews a GitHub pull request with the code-triage skill and adds the findings as brief line, file, and review-body comments to the user's pending (draft) review, leaving it unpublished.
 disable-model-invocation: true
 ---
 
 # Review a Pull Request
 
-Review a pull request with the `code-review` skill, then turn its findings into comments in the user's pending review. The user edits and submits that review on GitHub, so each comment is written in their voice.
+Review a pull request with the `code-triage` skill, then turn its findings into comments in the user's pending review. The user edits and submits that review on GitHub, so each comment is written in their voice.
 
-## Step 1: Pinning the pull request
+## Step 1: Pin the pull request
 
 The user gives a pull request link or branch. Read it with `gh pr view <link-or-branch> --json url,baseRefName,headRefOid`; the URL gives `<owner>/<repo>` and `<number>`. When a sandboxed `gh` call fails with `Forbidden` or an invalid token, rerun it outside the sandbox, where `gh` can read its keyring.
 
@@ -16,13 +16,13 @@ Pin a checkout following `~/.agents/references/temporary-codebases.md`, with the
 
 Done when `<remote>/<baseRefName>` and `<headRefOid>` both resolve in the checkout.
 
-## Step 2: Running the code-triage skill
+## Step 2: Run the code-triage skill
 
 Follow the `code-triage` skill at `~/.agents/skills/code-triage/SKILL.md` through its final report. Give it the pull request link, and `<remote>/<baseRefName>` as the fixed point. Run it, and its sub-agents, in the checkout from Step 1.
 
 Done when the Standards, Spec, and Bugs axes and the checks have reported, and each finding has a verdict.
 
-## Step 3: Drafting the comments
+## Step 3: Draft the comments
 
 Read what the pull request already holds:
 
@@ -50,7 +50,7 @@ A file comment's anchor is its `path` alone, and GitHub accepts it for any file 
 
 Write each comment in the user's voice. Before you write the first comment, read [the comment voice](references/comment-voice.md). It gives the length, form, and words for each type of finding. If the user has comments in the pending review or in this pull request, match them too.
 
-The reader is the pull request author, a cold reader who did not see the code-review report. Make each comment specific enough for that reader to act on, in the length that the comment voice gives:
+The reader is the pull request author, a cold reader who did not see the `code-triage` report. Make each comment specific enough for that reader to act on, in the length that the comment voice gives:
 
 - Name the case that breaks: the exact input, state, or condition.
 - If the fix is not clear from the problem, name the API, function, value, or file to use.
@@ -59,7 +59,7 @@ The reader is the pull request author, a cold reader who did not see the code-re
 
 Done when each comment is a line or file comment with a verified anchor, or a review-body comment. Each comment must follow the comment voice, and a cold reader must be able to act on it without the report.
 
-## Step 4: Posting into the pending review
+## Step 4: Post into the pending review
 
 If Step 3 has no comments, skip this step and create no review.
 
@@ -98,9 +98,9 @@ EOF
 
 Done when `gh api repos/<owner>/<repo>/pulls/<number>/reviews/<id> --jq .state` prints `PENDING`, the review's comments include every line and file comment from Step 3, and its body holds the user's text and every review-body comment.
 
-## Step 5: Reporting
+## Step 5: Report
 
-In the Claude desktop app (the `mcp__visualize__show_widget` tool is in your tool list), report with [the desktop app report](references/claude-desktop-report.md) in place of the Markdown report below.
+If an inline HTML widget tool (`show_widget`) is in your tool list, report with [the widget report](references/widget-report.md) in place of the Markdown report below.
 
 ```markdown
 Added <N> comments to your [pending review](html_url) on [<owner>/<repo>#<number>](url). It stays unpublished until you submit it.

@@ -19,6 +19,4 @@ Before you start work in a Git repository, run `git fetch --prune origin`. If th
 # Glossary
 
 - **Commit message**: a one-line subject. The `commit-message-format` skill holds the format and the procedure.
-- **PR proposal** (pull request proposal): a GitHub compare-page URL prefilled with the PR title and description, handed to the user so they open the pull request themselves; it stands in for creating the PR. The title follows the repository's recent human-written merged PR titles and the description is only the link to the related Jira ticket. `~/.agents/skills/work-on-task/references/contribution.md` holds the procedure. Examples:
-  - Compared to the default branch: `https://github.com/user/repo/compare/feat/my-feat-branch?expand=1&body=https://atlassian.atlassian.net/browse/ABC-123&title=ABC-123:%20Add%20new%20feature`
-  - Compared to a specific branch: `https://github.com/user/repo/compare/my-other-branch...fix/my-fix-branch?expand=1&body=https://atlassian.atlassian.net/browse/ABC-456&title=ABC-456:%20Fix%20bug`
+- **PR proposal** (pull request proposal): a GitHub compare-page URL prefilled with the PR title and description (`expand=1`, `title`, and `body` with only the related Jira ticket link), handed to the user so they open the pull request themselves. `~/.agents/skills/work-on-task/references/contribution.md` holds the procedure and examples.

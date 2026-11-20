@@ -1,24 +1,15 @@
 ---
 name: shell
-description: >-
-  Runs the rest of a /shell request as a literal shell command. Use only when
-  the user explicitly invokes /shell and wants the following text executed
-  directly in the terminal.
+description: Runs the text after /shell as a literal shell command.
 disable-model-invocation: true
 ---
-# Run Shell Commands
-
-Use this skill only when the user explicitly invokes `/shell`.
+# Run shell commands
 
 ## Behavior
 
-1. Treat all user text after the `/shell` invocation as the literal shell command to run.
-2. Execute that command immediately with the terminal tool.
-3. Do not rewrite, explain, or "improve" the command before running it.
-4. Do not inspect the repository first unless the command itself requires repository context.
-5. If the user invokes `/shell` without any following text, ask them which command to run.
+1. Run the exact user text after `/shell` as a terminal command immediately, without prior repository checks or edits to the command.
+2. If no text follows `/shell`, ask the user which command to run.
 
 ## Response
 
-- Run the command first.
-- Then briefly report the exit status and any important stdout or stderr.
+- Report the exit status and any important stdout or stderr.

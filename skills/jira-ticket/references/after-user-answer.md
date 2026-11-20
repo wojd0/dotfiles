@@ -20,9 +20,7 @@ Apply the changes to the proposal. Preserve the user's latest wording. Repeat re
 
 If the user explicitly requests edits and creation in the same answer, apply those edits and proceed within that instruction. A cancellation ends the task without creation.
 
-## Create and verify: explicit creation answer required
-
-Enter this procedure only after choice a or an equally clear creation instruction, or choice b with a confirmed status answer. Otherwise, stop without a write.
+## Create and verify
 
 Create one ticket with the approved content, project, type, parent, and fields. Apply approved links and any fields that need a later edit to that ticket.
 

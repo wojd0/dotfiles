@@ -1,85 +1,79 @@
 ---
 name: work-on-task
-description: Plans and executes implementation of a task only when the user explicitly requests the work-on-task skill. General task, implementation, or Jira requests do not activate it.
+description: Multi-phase workflow to research, plan, implement, and contribute a task or Jira ticket.
 disable-model-invocation: true
 ---
 
-# Plan a Jira Ticket 
-This skills allows you to plan the implementation of a task following a multi-phase workflow.
+# Plan and implement a task
 
-## Invocation
-
-Use this workflow only when the user explicitly invokes `work-on-task` (for example, `$work-on-task`, `/work-on-task`, or "use the work-on-task skill"). A mention while discussing or editing the skill is not an invocation. For other requests, use the agent's normal workflow; agents and other skills must not select this workflow automatically.
+Plan and implement a task or a Jira ticket through a multi-phase workflow.
 
 ## Conventions
 
-Here are important conventions and instructions for using this skill, agent MUST follow these closely:
+1. **STOP** means that you stop and wait for user input. Show the required information, ask the question with the question tool when available, and include a recommended answer.
+2. When you start a phase, send the message: `<phase_name> phase started`.
+3. If a rule, configuration, or missing permission blocks an action, **STOP**. Tell the user what is blocked, give the command or steps to fix it, and ask whether they resolved the problem.
+4. Sub-agent definitions live in `~/.agents/agents/`. When a phase names a sub-agent, start it with that name as the agent type. If the agent type is not available, read its definition file and do its work yourself, and tell the user that the phase ran without the sub-agent.
 
-1. STOP keyword in this skill is a moment for human's input. You need to stop, provide instructed information and questions to the user. Use the ask question tool, outline recommended answer.
+## Prerequisites
 
-2. When reaching next phase send a message to the user with the following content:
-<phase_name> phase started
+1. Verify that the user gave a ticket key, a Jira link, or a clear task description. If not, **STOP** and ask for it.
+2. When the task references Jira or Confluence, run one small read with the Atlassian MCP to confirm access.
+3. Run `git fetch --prune origin` to confirm access to the GitHub remote.
+4. Verify that the working tree is clean. If not, **STOP** and ask the user how to proceed.
+5. If the repository sits on its default base branch (`main`, `develop`, or equivalent), run `git pull --ff-only`.
 
-3. If anything (rules, agent configuration or permissions) is preventing you from performing an action, STOP, inform the user what is the problem, providing guidance on how to resolve it (ex. command to execute) and ask him yes/no if they resolved the issue.
+## Phase 1: Identify the ticket
 
-4. Sub-agent definitions are in `~/.agents/agents/`. When a phase names a sub-agent, start it with that name as the agent type. If the agent type is not available, read its definition file and do its work yourself. Tell the user that the phase ran without the sub-agent.
-
-## Prerequisites checklist:
-
-- Check if user provided ticket ID, Jira link or a specific request. If not - STOP and ask the user to provide that.
-- Check if you have access to the Atlassian MCP by running any simple tool provided by it
-- Check if you have access to the GitHub origin the repository you're working on by fetching
-- Verify that the current git branch is clean. If not - STOP and ask the user to clean the branch or give guidelines on how to proceed.
-- If on repository's main merging branch (develop, main, etc.) - update with fetch and git pull --rebase
-
-## Phase 1: Identifying the ticket
-
-Extract the ticket ID and any extra context from the user message. The user may provide:
+Extract the ticket key and any extra context from the user message:
 
 - A Jira URL: `https://example.atlassian.net/browse/<JIRA_KEY>-<NUMBER>`
-- A ticket ID with instructions: `implement ticket <JIRA_KEY>-<NUMBER>, <extra context>`
-- A bug fix request containing a Jira browse URL
+- A ticket key with instructions: `implement ticket <JIRA_KEY>-<NUMBER>, <extra context>`
+- A task or bug fix request with a Jira browse URL
 
-If the provided context is not enough, STOP and ask the user for additional information.
+If the user request is not clear enough to identify the task, **STOP** and ask for more detail.
 
-## Phase 2: Collecting spec and context 
+## Phase 2: Collect spec and context
 
-Start exactly one `spec-researcher` sub-agent. Give it:
-- the ticket key or link, or the specific request;
+Start one `spec-researcher` sub-agent. Give it:
+
+- the ticket key, link, or task request;
 - the extra context and focus from the user message, in the user's words;
-- what you know so far from Phase 1;
+- what you know from Phase 1;
 - the repository path and its remote URL.
 
 The sub-agent explores every knowledge source connected to the session and returns a spec brief. Use the spec brief as the task spec in all later phases.
 
-This phase is complete when you have the spec brief. If the brief lists blocked sources, STOP, show each blocked source with its fix, and ask the user whether to continue without it.
+Done when you have the spec brief. If the brief lists blocked sources, **STOP**, show each blocked source with its fix, and ask the user whether to continue without it.
 
-## Phase 3: Researching the codebase
+## Phase 3: Research the codebase
 
-Phase 3 is best executed in ONE OR MORE sub-agent(s). If available, use pre-configured agent type designed for this purpose. Adjust subagent(s)' model and effort according to the complexity of the codebase and the changes required.
+Run one or more research sub-agents to inspect the codebase and find the required changes:
 
-Research the codebase to understand the current state and the changes needed. Explore all the following areas:
-- identify affected files
-- check related and impacted files
-- verify usages of the files in tests, showcases, demos etc.
-- check verification steps and test coverage - builds, lints, tests and CI checks
-- review related documentation and design specifications
+- find the affected files and their callers;
+- check usages in tests, stories, showcases, and demos;
+- identify the build, lint, unit test, and CI verification targets for the affected projects;
+- read related repository documentation and design specifications.
 
-## Phase 4: Confirming alignement with user's request
+Done when all affected files, callers, and verification commands are identified.
 
-Purpose of this phase is for the user to be able to "read your mind" and check if you're understanding their request correctly BEFORE you start drafting implementation plan, so do not provide any implementation details. Provide a structured message with four following sections:
-- summary of context you've gathered (number of pages, tickets and other sources checked)
-- current state - how does the affected functionality work now?
-- the problem, missing feature or bug you're going to work on
-- result - how the behavior or technical solution will change
+## Phase 4: Confirm alignment with the user
 
-STOP and ask user for feedback, once you get it adjust the plan accordingly. Advance to the next phase only after user's approval.
+Before you draft the implementation plan, show the user your understanding of the task without implementation details. Send a message with these four sections:
 
-## Phase 5: Drafting the implementation plan
+- **Context summary**: the number of pages, tickets, and other sources checked.
+- **Current state**: how the affected functionality works now.
+- **Problem or goal**: the missing feature, change, or bug that you will address.
+- **Expected result**: how the behavior or technical outcome will change.
 
-Create a structured implementation plan. You should follow general best practices for implementation plans you already know or have skills for.
+**STOP** and ask the user for approval or corrections. Continue to Phase 5 only after the user approves.
 
-This paragraph MUST be added as-is at the end of the plan (do not read this file yourself, implementing agent has to do it):
-Once starting the implementation, agent MUST follow the guidelines provided in the `./references/implementation.md` file.
+## Phase 5: Draft the implementation plan
 
-When the plan is ready, present it to the user.
+Write a structured implementation plan covering the files to change, the steps to execute, and the verification commands to run.
+
+Add this exact line at the end of the plan:
+
+> When you start the implementation, read and follow `~/.agents/skills/work-on-task/references/implementation.md`.
+
+Present the plan to the user. When the user approves the plan for implementation in the same session, read and follow [`references/implementation.md`](references/implementation.md).

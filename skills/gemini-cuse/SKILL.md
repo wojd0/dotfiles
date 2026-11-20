@@ -1,6 +1,6 @@
 ---
 name: gemini-cuse
-description: Computer use on this Windows machine, delegated to a Gemini 3.8 Flash worker in the local Antigravity CLI (`agy`), which controls the desktop through CUA Driver. Use whenever a task needs computer use (seeing the screen, or clicking, typing, or reading in a desktop app), in place of other computer-use tools, or when the user asks to hand work to Gemini, agy, or Antigravity.
+description: Desktop computer use through a Gemini 3.8 Flash worker in the local Antigravity CLI (`agy`) and CUA Driver. Use when a task needs desktop GUI interaction or when the user delegates computer use to Gemini, agy, or Antigravity.
 ---
 
 # Gemini computer use
@@ -9,11 +9,7 @@ You are the delegating agent. Any agent that can run PowerShell can use this ski
 
 ## Roles
 
-The worker owns the computer. Each computer-use task starts and ends inside `agy`. The worker sees the screen, does the clicks and typing, fixes all technical problems, and checks the result.
-
-You are a non-technical manager. You have no access to the screen, the mouse, or the keyboard, and you cannot fix a technical problem on the computer. You give the goal, the exact values, and the success criterion. Then you read the report and the final screenshot.
-
-The worker brief in [`references/worker-brief.md`](references/worker-brief.md) tells the worker these roles in every run. Write each `-Task` and each retry `-Task` in the same voice: a manager who gives the goal, not a technician who gives the method.
+The worker owns the computer: it sees the screen, clicks, types, fixes technical problems on the desktop, and checks the result inside `agy`. You are a non-technical manager with no access to the screen, mouse, or keyboard: give the goal, exact values, and success criterion, as [`references/worker-brief.md`](references/worker-brief.md) sets out.
 
 ## Preconditions
 

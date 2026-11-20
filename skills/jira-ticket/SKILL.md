@@ -58,11 +58,7 @@ This step is complete when all three sets are read and their coverage is known. 
 
 Ask the same research subagent to list the issue types that the user can create in the target project. Choose the type from the work's purpose, the parent hierarchy, and similar tickets. Check the type's description and subtask flag. Use the project's actual types; a bug can be a child ticket if the hierarchy and local practice require it.
 
-Have it read create-field metadata for the selected project and type, including optional fields. With the Atlassian connector, discover and use:
-
-- `listJiraProjectIssueTypesMetadata`, with all pages;
-- `getJiraIssueTypeMetaWithFields`, with `requiredFieldsOnly: false` and all pages;
-- `listJiraStatuses`, with `mode: "project"` and the selected `issueType`.
+Have it read all pages of the project issue-type metadata, the create-field metadata for the selected project and type (with optional fields included), and the project statuses for the selected issue type.
 
 Record field names, IDs, required flags, schemas, allowed values, and defaults. Read edit metadata when a proposed field can only be set after creation. Check available issue link types and their inward and outward meanings. Check that each proposed value is valid for this project and type. Resolve a required value from evidence or ask one focused question.
 
@@ -96,6 +92,4 @@ b) Create the ticket and assign it to [current user's display name].
 
 Use a question tool when available. Include the proposal in the question or the same response. Offer only these two choices. Use the tool's built-in free-text option for custom feedback or edits.
 
-**STOP HERE. End the turn with the proposal and questionnaire.** The proposal stage is complete when the user has received both. Make no Jira writes while the answer is pending. A preselected choice, silence, elapsed time, or earlier general permission is not an answer.
-
-Only after an actual user answer to this questionnaire arrives, read [Handle the user's answer](references/after-user-answer.md). Keep that procedure unloaded during the proposal stage. Creation requires choice a, choice b, or an equally clear user instruction to create the proposed ticket.
+**STOP HERE. End the turn with the proposal and questionnaire.** Make no Jira writes while the answer is pending. When the user answers, read [Handle the user's answer](references/after-user-answer.md).

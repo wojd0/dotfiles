@@ -1,31 +1,28 @@
 ---
 name: commit-message-format
-description: Enables the agent to follow the active repository's commit-message format. Use every time the agent creates or rewrites a commit message, including commit, amend, merge, revert, cherry-pick, squash, and rebase.
+description: Repository commit-message format. Use when you create or rewrite a commit message.
 ---
 
-# Commit Message Format
+# Commit message format
 
-Before you create a commit message, run this in the target repository:
+Before you create or rewrite a commit message, run this command in the target repository:
 
 ```bash
 git log -30 --format=%s
 ```
 
-Match the new subject to the dominant pattern in that output, including
-prefixes, scopes, ticket IDs, capitalization, and punctuation. Prefer recent
-entries when patterns conflict. Use only formats that the repository history
-supports.
+Match the new subject to the dominant pattern in that output: prefixes, scopes, ticket IDs, capitalization, and punctuation. Prefer recent commits when patterns conflict. Use only formats that the repository history supports.
 
-If no pattern exists, follow the conventional commit rules:
-Each commit message consists of a header, a body and a footer. The header has a special format that includes a type, a scope and a subject:
-build: Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)
-ci: Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)
-docs: Documentation only changes
-feat: A new feature
-fix: A bug fix
-perf: A code change that improves performance
-refactor: A code change that neither fixes a bug nor adds a feature
-style: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
-test: Adding missing tests or correcting existing tests
+If no pattern exists in the history, use the one-line Conventional Commits format `<type>(<optional scope>): <imperative subject>` with one of these types:
 
-Use a concise one-line imperative subject. Write a one-line subject only. Do not add a body.
+- `build`: build system or external dependency changes
+- `ci`: CI configuration and script changes
+- `docs`: documentation-only changes
+- `feat`: a new feature
+- `fix`: a bug fix
+- `perf`: a performance improvement
+- `refactor`: a code change that neither fixes a bug nor adds a feature
+- `style`: formatting or whitespace changes that do not change meaning
+- `test`: new or updated tests
+
+Write a concise one-line imperative subject only. Do not add a commit body or footer.

@@ -17,9 +17,11 @@ Turn one pile of work into a few small PRs.
 
 ## 1. Check the state
 
-Compare the current work to the repo's default branch, including committed and uncommitted changes. Summarize the real slices you see, and use the chat history to recover intent.
+Compare the current work to the repository's default branch, including committed and uncommitted changes. Summarize the real slices you see, and use the chat history to recover intent.
 
-Before proposing slices, find ownership signals for the touched paths (`CODEOWNERS`, nested ownership files, `tools/ownership/PRODUCTOWNERS`, or repo equivalents) and use them to identify natural reviewer boundaries.
+Before proposing slices, find ownership signals for the touched paths (`CODEOWNERS`, nested ownership files, `tools/ownership/PRODUCTOWNERS`, or repository equivalents) and use them to identify natural reviewer boundaries.
+
+Done when every changed file or hunk is assigned to a slice and the ownership boundaries are known.
 
 ## 2. Propose the split
 
@@ -29,7 +31,7 @@ Optimize for reviewer-aligned PRs with minimal unrelated diff: split independent
 
 Default to independent PRs off the default branch. Stack PRs only when the dependency is real.
 
-Ask for approval before starting.
+Ask for approval before starting. Done when the user approves the split plan.
 
 ## 3. Execute the split
 
@@ -42,8 +44,13 @@ Ask for approval before starting.
   fi
   ```
 
-- For each approved slice, create a branch from the right base, stage and commit only the planned files or hunks, then push and open the PR.
+- For each approved slice, create a branch from the right base, stage and commit only the planned files or hunks with the `commit-message-format` skill, and push the branch.
+- Return a PR proposal (compare URL as in `~/.agents/skills/work-on-task/references/contribution.md`) for each slice, unless the user explicitly asks to create the pull requests directly (in which case, put only the related Jira ticket link in the PR body).
+
+Done when each approved slice is committed on its branch, pushed to the remote, and has its PR proposal or PR URL.
 
 ## 4. Report back
 
-Keep it short: PR titles and URLs, plus anything left on the starting branch or working tree. Do not delete the backup ref or original branch unless the user asks.
+Keep it short: PR titles and PR proposal links (or PR URLs), plus anything left on the starting branch or working tree. Do not delete the backup ref or original branch unless the user asks.
+
+Done when the report lists every slice and any remaining local changes.
