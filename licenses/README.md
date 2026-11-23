@@ -22,9 +22,6 @@ This directory holds the license of each third-party source that the repository 
 |---|---|---|---|
 | `.agents/skills/` skills `teach`, `tdd`, `grilling`, `implement`, `diagnosing-bugs`, `wayfinder`, `wizard`, `code-review` | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT | [mattpocock-skills.txt](mattpocock-skills.txt) |
 | `custom-skills/pdf/` | [openai/skills](https://github.com/openai/skills) `skills/.curated/pdf/` | Apache-2.0 | [openai-skills-pdf.txt](openai-skills-pdf.txt) |
-| `custom-skills/create-rule/`, `custom-skills/create-skill/`, `custom-skills/update-cursor-settings/` | Cursor built-in skills (the skill text names Cursor) | No public license | None |
-
-The Cursor skills have no public license. The current files do not contain them.
 
 ## Content that needs no notice
 
