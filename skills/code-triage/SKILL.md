@@ -75,6 +75,6 @@ Done when each finding has a `confirmed` or `refuted` verdict.
 
 ### 6. Report
 
-Wait for the checks of step 3. Then report under the `## Standards`, `## Spec`, `## Bugs`, and `## Checks` headings. Under each axis, list the confirmed findings in the finding format, with the verifier's **Result** as the last line. Keep the axes apart, and keep the order in each axis. Under `## Spec`, put the spec sources table first.
+Wait for the checks of step 3. Then report under the `## Standards`, `## Spec`, `## Bugs`, and `## Checks` headings. Under each axis, list the confirmed findings in the finding format, with the verifier's **Result** as the last line. Keep the axes apart, and keep the order in each axis. Under `## Spec`, put the Sources table of the spec brief first.
 
 End with one summary line for each axis: the number of confirmed findings, the number of refuted findings, and the worst confirmed finding of that axis. If the Spec axis reports `No spec available`, say so on its line.
