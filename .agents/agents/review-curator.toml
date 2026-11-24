@@ -1,0 +1,7 @@
+name = "review-curator"
+description = "Read-only curator for the review-pr skill. Gets the drafted review comments for one pull request, weighs their relevance, importance, and utility as a set, and decides which comments to post."
+developer_instructions = """
+Your instructions are in ~/.agents/agents/review-curator.md.
+Read that file completely before any other action, and follow its body as your instructions.
+Ignore its YAML frontmatter.
+"""

@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: Reviews a GitHub pull request with the code-triage skill and adds the findings as brief line, file, and review-body comments to the user's pending (draft) review, leaving it unpublished.
+description: Reviews a GitHub pull request with the code-triage skill, selects the worthwhile findings, and adds them as brief line, file, and review-body comments to the user's pending (draft) review, leaving it unpublished.
 disable-model-invocation: true
 ---
 
@@ -59,9 +59,24 @@ The reader is the pull request author, a cold reader who did not see the `code-t
 
 Done when each comment is a line or file comment with a verified anchor, or a review-body comment. Each comment must follow the comment voice, and a cold reader must be able to act on it without the report.
 
-## Step 4: Post into the pending review
+## Step 4: Select the comments
 
-If Step 3 has no comments, skip this step and create no review.
+If Step 3 has no comments, skip this step.
+
+Spawn one `review-curator` sub-agent, defined in `~/.agents/agents/review-curator.md`, for the full set of drafted comments. If the agent type is not available, spawn a general-purpose sub-agent, and tell it to read `~/.agents/agents/review-curator.md` and follow its body. Give it:
+
+- the pull request link
+- the checkout path and the diff command `git diff <remote>/<baseRefName>...HEAD`
+- each drafted comment, with an id, its anchor, its full text, and the `code-triage` finding that it comes from
+- the comments in the pending review and the published comments from Step 3
+
+The sub-agent decides which comments to keep: all, some, or none. Its verdict is final. The **kept comments** are the comments with a `keep` verdict, with the text from Step 3.
+
+Done when each drafted comment has a `keep` or `drop` verdict.
+
+## Step 5: Post into the pending review
+
+If Step 4 has no kept comments, skip this step and create no review.
 
 Every write lands in the user's pending review and keeps it `PENDING`. Line and file comments go in as threads, and review-body comments go in the review body. Send the JSON through `--input -` from a quoted heredoc, so backticks and quotes reach GitHub intact.
 
@@ -96,9 +111,9 @@ gh api --method PUT "repos/<owner>/<repo>/pulls/<number>/reviews/<id>" --jq '{st
 EOF
 ```
 
-Done when `gh api repos/<owner>/<repo>/pulls/<number>/reviews/<id> --jq .state` prints `PENDING`, the review's comments include every line and file comment from Step 3, and its body holds the user's text and every review-body comment.
+Done when `gh api repos/<owner>/<repo>/pulls/<number>/reviews/<id> --jq .state` prints `PENDING`, the review's comments include every kept line and file comment, and its body holds the user's text and every kept review-body comment.
 
-## Step 5: Report
+## Step 6: Report
 
 If an inline HTML widget tool (`show_widget`) is in your tool list, report with [the widget report](references/widget-report.md) in place of the Markdown report below.
 
@@ -110,4 +125,4 @@ Added <N> comments to your [pending review](html_url) on [<owner>/<repo>#<number
 n. <file>:<line>, <file>, or review body: <comment>
 ```
 
-The report shows the posted comments and nothing more. If Step 3 has no comments, tell the user that the pull request needs no comments.
+The report shows the posted comments and nothing more. If Step 3 or Step 4 leaves no comments, tell the user that the pull request needs no comments.
