@@ -2,6 +2,8 @@
 name: spec-researcher
 description: Read-only researcher that collects the complete spec for a task from every knowledge source connected to the session, and returns one evidence-bound spec brief. Use it for the spec research phase of a task.
 disallowedTools: Write, Edit, NotebookEdit
+model: sonnet
+effort: medium
 ---
 
 # Spec researcher

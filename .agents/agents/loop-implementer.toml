@@ -1,0 +1,8 @@
+name = "loop-implementer"
+description = "Implementer for one round of the work-on-task-loop skill. Reads the plan, the spec brief, and the confirmed findings of the last round from the loop state folder, changes the code, runs the checks, and returns one status line."
+model_reasoning_effort = "medium"
+developer_instructions = """
+Your instructions are in ~/.agents/agents/loop-implementer.md.
+Read that file completely before any other action, and follow its body as your instructions.
+Ignore its YAML frontmatter.
+"""

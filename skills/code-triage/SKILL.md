@@ -28,6 +28,8 @@ Give each sub-agent the **triage input**:
 
 ### 1. Pin the fixed point
 
+If the caller gives a ready triage input, such as a diff command against a snapshot of uncommitted work, use it as it is. Run its diff command with `--shortstat`, and stop here if the diff is empty. Then set the consumer root as below, and skip the other parts of this step.
+
 The fixed point is what the user gives: a commit, a branch, a tag, `main`, `HEAD~5`, or a pull request link or number. If the user gives none, ask for it.
 
 If the user gives a pull request link or number whose head commit is not the local `HEAD`, read `url`, `baseRefName`, and `headRefOid` with `gh pr view <pr> --json url,baseRefName,headRefOid`. Pin a checkout as in `~/.agents/references/temporary-codebases.md` with the commit `<headRefOid>`, the refs `<baseRefName>` and `pull/<number>/head`, and the name `triage/<owner>/<repo>/PR-<number>`. Set `<fixed-point>` to `<remote>/<baseRefName>` in that checkout.

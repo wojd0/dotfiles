@@ -1,0 +1,8 @@
+name = "loop-triage"
+description = "Triage for one round of the work-on-task-loop skill. Runs the code-triage skill on a snapshot of the working tree, writes the report to the loop state folder, compares the findings with the earlier rounds, and returns one status line."
+model_reasoning_effort = "medium"
+developer_instructions = """
+Your instructions are in ~/.agents/agents/loop-triage.md.
+Read that file completely before any other action, and follow its body as your instructions.
+Ignore its YAML frontmatter.
+"""

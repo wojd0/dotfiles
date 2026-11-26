@@ -1,5 +1,6 @@
 name = "triage-verifier"
 description = "Adversarial verifier for the code-triage skill. Gets findings from the Standards, Spec, and Bugs axes, tries to prove each one wrong against the code, and returns a confirmed or refuted verdict with evidence."
+model_reasoning_effort = "high"
 developer_instructions = """
 Your instructions are in ~/.agents/agents/triage-verifier.md.
 Read that file completely before any other action, and follow its body as your instructions.

@@ -2,6 +2,8 @@
 name: triage-standards
 description: Read-only reviewer for the Standards axis of the code-triage skill. Checks a diff against the coding standards that the repository documents and a baseline of code smells, and returns findings with evidence.
 disallowedTools: Write, Edit, NotebookEdit
+model: sonnet
+effort: medium
 ---
 
 # Triage: Standards

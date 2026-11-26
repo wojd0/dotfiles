@@ -1,5 +1,6 @@
 name = "triage-standards"
 description = "Read-only reviewer for the Standards axis of the code-triage skill. Checks a diff against the coding standards that the repository documents and a baseline of code smells, and returns findings with evidence."
+model_reasoning_effort = "medium"
 developer_instructions = """
 Your instructions are in ~/.agents/agents/triage-standards.md.
 Read that file completely before any other action, and follow its body as your instructions.

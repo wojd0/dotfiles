@@ -2,6 +2,8 @@
 name: triage-spec
 description: Read-only reviewer for the Spec axis of the code-triage skill. Extends the spec-researcher agent, collects the spec of a change from every source that the change links to, and returns findings where the diff does not do what the spec asks.
 disallowedTools: Write, Edit, NotebookEdit
+model: sonnet
+effort: medium
 ---
 
 # Triage: Spec

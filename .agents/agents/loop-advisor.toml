@@ -1,0 +1,8 @@
+name = "loop-advisor"
+description = "Read-only advisor for the work-on-task-loop skill. Gets a loop that stopped making progress, finds the cause of the dead end from the loop state folder, and returns a strategy or the questions that the user must answer."
+model_reasoning_effort = "high"
+developer_instructions = """
+Your instructions are in ~/.agents/agents/loop-advisor.md.
+Read that file completely before any other action, and follow its body as your instructions.
+Ignore its YAML frontmatter.
+"""

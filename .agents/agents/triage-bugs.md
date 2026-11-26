@@ -2,6 +2,8 @@
 name: triage-bugs
 description: Read-only reviewer for the Bugs axis of the code-triage skill. Hunts for defects that a diff causes, follows each changed contract to its callers in the repository and in local consumer repositories, and returns findings with a failure scenario.
 disallowedTools: Write, Edit, NotebookEdit
+model: sonnet
+effort: medium
 ---
 
 # Triage: Bugs

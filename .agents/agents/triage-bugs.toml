@@ -1,5 +1,6 @@
 name = "triage-bugs"
 description = "Read-only reviewer for the Bugs axis of the code-triage skill. Hunts for defects that a diff causes, follows each changed contract to its callers in the repository and in local consumer repositories, and returns findings with a failure scenario."
+model_reasoning_effort = "medium"
 developer_instructions = """
 Your instructions are in ~/.agents/agents/triage-bugs.md.
 Read that file completely before any other action, and follow its body as your instructions.

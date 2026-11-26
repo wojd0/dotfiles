@@ -1,6 +1,8 @@
 ---
 name: triage-verifier
 description: Adversarial verifier for the code-triage skill. Gets findings from the Standards, Spec, and Bugs axes, tries to prove each one wrong against the code, and returns a confirmed or refuted verdict with evidence.
+model: opus
+effort: high
 ---
 
 # Triage: Verifier
