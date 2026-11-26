@@ -28,7 +28,7 @@ Public-safe dotfiles managed with GNU Stow.
    - Existing secrets remain in the home directory and are never managed by Stow.
    - The `local` Stow package links only public-safe machine configuration into your home directory.
    - `~/d/.tmp-codebases` is created for temporary clones and worktrees.
-   - The cron jobs from `cron/crontab` are installed into your user crontab.
+   - The cron jobs from `userconfig/cron/crontab` are installed into your user crontab.
 3. Fill in the secret values.
 
 ## Update
@@ -37,9 +37,9 @@ Run `./scripts/update.sh` to get the latest changes and apply them. The script d
 
 1. It stops if the working tree has local changes.
 2. It runs `git pull --rebase`.
-3. If the install files changed, it runs `./setup.sh`. Otherwise, it runs `./scripts/stow.sh`, and it runs `./scripts/cron.sh` when `cron/` changed.
+3. If the install files changed, it runs `./setup.sh`. Otherwise, it runs `./scripts/stow.sh`, and it runs `./scripts/cron.sh` when `userconfig/cron/` changed.
 4. It runs `./scripts/verify-agents.sh`.
-5. If `shell/` changed, it tells you to start a new shell.
+5. If `userconfig/shell/` changed, it tells you to start a new shell.
 
 ## Windows agent sync
 
@@ -85,7 +85,7 @@ Oh My Zsh installation and can be rerun safely.
 `stow.sh` performs all dotfile
 and skill setup.
 
-Oh My Zsh plugins are declared in `shell/.oh-my-zsh-plugins`. Each line contains
+Oh My Zsh plugins are declared in `userconfig/shell/.oh-my-zsh-plugins`. Each line contains
 a plugin name and, for plugins not bundled with Oh My Zsh, its Git repository
 URL. `scripts/oh-my-zsh.sh` validates the list and clones external entries,
 while `.zshrc` generates its `plugins` array from the same ordered list. The
@@ -93,15 +93,15 @@ plugin installer can also be run independently after changing the manifest.
 
 ## Cron jobs
 
-`scripts/cron.sh` writes the entries from `cron/crontab` into your user crontab
+`scripts/cron.sh` writes the entries from `userconfig/cron/crontab` into your user crontab
 between `# BEGIN dotfiles cron` and `# END dotfiles cron`. Each run replaces
 that block and keeps every other entry, so rerun it after editing
-`cron/crontab`. The block sets `DOTFILES_DIR` to this repository and
+`userconfig/cron/crontab`. The block sets `DOTFILES_DIR` to this repository and
 `DOTFILES_LOG_DIR` to `~/.local/state/dotfiles`, where jobs append their output
 to `cron.log`. On macOS, the first install can ask to let your terminal
 administer the computer.
 
-`cron/clean-tmp-codebases.sh` runs at 10:00 and 16:00. It removes each clone
+`userconfig/cron/clean-tmp-codebases.sh` runs at 10:00 and 16:00. It removes each clone
 or worktree in `~/d/.tmp-codebases` whose top directory was last modified over
 3 days ago, then the parent directories that removal leaves empty. Worktrees
 go through `git worktree remove --force`, which also unregisters them from
@@ -139,15 +139,15 @@ arrives only when the environment runs the script again.
 
 ## Secrets
 
-- Running `./scripts/stow.sh` creates `~/.secrets` from `local/.secrets.example` only when it is missing.
+- Running `./scripts/stow.sh` creates `~/.secrets` from `userconfig/local/.secrets.example` only when it is missing.
 - Any existing `~/.secrets`, including a symlink from an older installation, is left unchanged.
 - The file is prefilled with the required secret variable names and empty values for you to fill in.
 - `~/.secrets` is sourced automatically by `.zshrc`, exposing the values as environment variables in every shell.
 - `GITHUB_USERNAME` supplies both the GitHub Packages username and Git
   `user.name`; `GITHUB_EMAIL` supplies Git `user.email`. Starting Zsh writes
   non-empty values to `~/.gitconfig.local`.
-- New secrets files stay outside the repository; only `local/.secrets.example` is tracked.
-- The tracked `local/.npmrc` reads registry tokens from those environment variables.
+- New secrets files stay outside the repository; only `userconfig/local/.secrets.example` is tracked.
+- The tracked `userconfig/local/.npmrc` reads registry tokens from those environment variables.
 
 ## Agent configuration
 

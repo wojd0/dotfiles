@@ -1,12 +1,12 @@
 .git
 /.agents/skills
 
-local/.zshrc.local
-local/.gitconfig.local
-local/.secrets
+userconfig/local/.zshrc.local
+userconfig/local/.gitconfig.local
+userconfig/local/.secrets
 
 **/.secrets
 **/.npmrc
-!local/.npmrc
+!userconfig/local/.npmrc
 **/.DS_Store
 **/.cache

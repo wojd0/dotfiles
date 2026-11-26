@@ -2,9 +2,9 @@
 *.swp
 *.swo
 
-local/.zshrc.local
-local/.gitconfig.local
-local/.secrets
+userconfig/local/.zshrc.local
+userconfig/local/.gitconfig.local
+userconfig/local/.secrets
 
 /.agents/skills/angular-developer/
 /.agents/skills/link-workspace-packages/
@@ -33,7 +33,7 @@ local/.secrets
 **/.gnupg/trustdb.gpg
 
 **/.npmrc
-!local/.npmrc
+!userconfig/local/.npmrc
 **/.aws/
 **/.docker/config.json
 **/.kube/config

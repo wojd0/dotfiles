@@ -4,9 +4,9 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_DIR"
 
-INSTALL_PATTERN='^(scripts/install\.sh|scripts/oh-my-zsh\.sh|shell/\.oh-my-zsh-plugins|setup\.sh)$'
-CRON_PATTERN='^(cron/|scripts/cron\.sh$)'
-SHELL_PATTERN='^shell/'
+INSTALL_PATTERN='^(scripts/install\.sh|scripts/oh-my-zsh\.sh|userconfig/shell/\.oh-my-zsh-plugins|setup\.sh)$'
+CRON_PATTERN='^(userconfig/cron/|scripts/cron\.sh$)'
+SHELL_PATTERN='^userconfig/shell/'
 
 ensure_clean_worktree() {
   if [ -n "$(git status --porcelain)" ]; then

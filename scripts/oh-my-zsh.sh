@@ -3,7 +3,7 @@ set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 OH_MY_ZSH_DIR="$HOME/.oh-my-zsh"
-PLUGIN_FILE="$REPO_DIR/shell/.oh-my-zsh-plugins"
+PLUGIN_FILE="$REPO_DIR/userconfig/shell/.oh-my-zsh-plugins"
 
 if [ ! -f "$OH_MY_ZSH_DIR/oh-my-zsh.sh" ]; then
   echo "error: Oh My Zsh is not installed at $OH_MY_ZSH_DIR" >&2

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-CRONTAB_FILE="$REPO_DIR/cron/crontab"
+CRONTAB_FILE="$REPO_DIR/userconfig/cron/crontab"
 LOG_DIR="$HOME/.local/state/dotfiles"
 BLOCK_START="# BEGIN dotfiles cron"
 BLOCK_END="# END dotfiles cron"

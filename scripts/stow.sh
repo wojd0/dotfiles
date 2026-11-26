@@ -18,12 +18,12 @@ require_command jq
 ensure_stow_sources_safe() {
   local untracked_files
 
-  if ! git diff --quiet -- shell git .agents local; then
+  if ! git diff --quiet -- userconfig .agents; then
     echo "error: stow source packages have unstaged changes; stage, stash, or commit them first" >&2
     exit 1
   fi
 
-  untracked_files="$(git ls-files --others --exclude-standard -- shell git .agents local)"
+  untracked_files="$(git ls-files --others --exclude-standard -- userconfig .agents)"
   if [ -n "$untracked_files" ]; then
     echo "error: stow source packages have untracked files; add, stash, or remove them first" >&2
     printf '%s\n' "$untracked_files" >&2
@@ -35,8 +35,8 @@ ensure_stow_sources_safe
 
 "$REPO_DIR/scripts/verify-agents.sh"
 
-stow --adopt -t "$HOME" shell
-stow --adopt -t "$HOME" git
+stow --adopt -d userconfig -t "$HOME" shell
+stow --adopt -d userconfig -t "$HOME" git
 mkdir -p "$HOME/.agents"
 stow --adopt -t "$HOME/.agents" .agents
 
@@ -78,8 +78,8 @@ link_agent_compatibility_path ".claude" "AGENTS.md" "CLAUDE.md"
 link_agent_compatibility_path ".codex" "agents" "agents"
 
 prepare_secrets_file() {
-  local template="local/.secrets.example"
-  local legacy_file="local/.secrets"
+  local template="userconfig/local/.secrets.example"
+  local legacy_file="userconfig/local/.secrets"
   local target="$HOME/.secrets"
 
   # Secrets are user-owned; this preservation check must not apply to other dotfiles.
@@ -103,10 +103,10 @@ prepare_secrets_file
 
 "$REPO_DIR/scripts/claude-settings.sh"
 
-if [ ! -f "local/.gitconfig.local" ]; then
-  cp "local/.gitconfig.local.example" "local/.gitconfig.local"
-  echo "created local/.gitconfig.local (set your GPG signing key)"
+if [ ! -f "userconfig/local/.gitconfig.local" ]; then
+  cp "userconfig/local/.gitconfig.local.example" "userconfig/local/.gitconfig.local"
+  echo "created userconfig/local/.gitconfig.local (set your GPG signing key)"
 fi
 
-stow --adopt --ignore='\.example$' --ignore='^\.secrets$' -t "$HOME" local
-git restore --worktree -- shell git .agents local
+stow --adopt --ignore='\.example$' --ignore='^\.secrets$' -d userconfig -t "$HOME" local
+git restore --worktree -- userconfig .agents

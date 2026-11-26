@@ -2,14 +2,15 @@
 
 ## Project Structure & Module Organization
 
-This repository manages public-safe dotfiles with GNU Stow. Each top-level package mirrors paths under `$HOME`:
+This repository manages public-safe dotfiles with GNU Stow. Top-level folders hold these items:
 
-- `shell/`: Zsh startup files (`.zshrc`, `.zshenv`).
-- `git/`: global Git configuration, ignore rules, and commit template.
+- `userconfig/`: the Stow packages for the home directory. Each package mirrors paths under `$HOME`.
+  - `userconfig/shell/`: Zsh startup files (`.zshrc`, `.zshenv`).
+  - `userconfig/git/`: global Git configuration, ignore rules, and commit template.
+  - `userconfig/local/`: tracked, public-safe machine configuration plus gitignored secrets; only secrets use a tracked `.example` template.
+  - `userconfig/cron/`: crontab entries and the jobs they run; `scripts/cron.sh` installs them into the user crontab. Jobs run with cron's `PATH=/usr/bin:/bin`, so `env bash` resolves to Bash 3.2 on macOS.
 - `.agents/`: canonical portable instructions (`AGENTS.md`), rules, generated skills, sub-agent definitions, shared skill references, and MCP configuration. Put a procedure that several skills need in `.agents/references/` and point each skill at its `~/.agents/references/` path. Put each sub-agent in `.agents/agents/` as a Claude Code `<name>.md` file and a Codex `<name>.toml` role file that points to the Markdown file.
 - `skills/`: tracked custom skill sources linked into `.agents/skills`. The skills in `skills-lock.json` are tracked as real directories in `.agents/skills` and linked from `.claude/skills`.
-- `local/`: tracked, public-safe machine configuration plus gitignored secrets; only secrets use a tracked `.example` template.
-- `cron/`: crontab entries and the jobs they run; `scripts/cron.sh` installs them into the user crontab. Jobs run with cron's `PATH=/usr/bin:/bin`, so `env bash` resolves to Bash 3.2 on macOS.
 - `licenses/`: the license of each third-party source that the repository contains now or contained in its commit history. `licenses/README.md` maps each repository path to its upstream, license, and license file. If you add, change, or remove third-party content, update `licenses/README.md` and add the upstream license text as `licenses/<owner>-<repo>.txt`.
 - `scripts/`: install, update, Stow, cron, GPG signing, Claude Code settings (`claude-settings.sh` merges the `env` values and the MCP settings into `~/.claude/settings.json`: no claude.ai connectors and no browser-use plugin. Each project keeps its MCP servers in its own `.mcp.json`), cloud-environment, Docker test, Windows agent sync (`sync-agents.ps1`), and agent-verification utilities. `setup.sh` at the root runs install, Stow, and cron setup.
 
@@ -20,7 +21,7 @@ Keep new configuration in the appropriate Stow package and preserve its intended
 There is no compilation step. Validate changes from the repository root:
 
 - `./scripts/stow.sh`: prepare the home-directory secrets file, link the `shell`, `git`, and `local` packages, and Stow `.agents` contents into `$HOME/.agents`.
-- `stow -n -t "$HOME" shell git && stow -n -t "$HOME/.agents" .agents && stow -n --ignore='\.example$' --ignore='^\.secrets$' -t "$HOME" local`: preview links and detect conflicts without changing files.
+- `stow -n -t "$HOME" shell git && stow -n -t "$HOME/.agents" .agents && stow -n --ignore='\.example$' --ignore='^\.secrets$' -d userconfig -t "$HOME" local`: preview links and detect conflicts without changing files.
 - `./scripts/verify-agents.sh`: confirm the canonical agent layout and custom-skill links are valid.
 - `./scripts/docker-test.sh`: run setup and validation in a clean Linux container.
 
